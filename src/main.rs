@@ -1,37 +1,30 @@
 use clap::Parser;
+use serde_rw::FromFile;
 use std::process::exit;
-use wg_gesucht_updater::Session;
-
-const DESCRIPTION: &str = "Bump advertisements on wg-gesucht.de";
-const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36";
-
-#[derive(Debug, Parser)]
-#[command(author, version, about, long_about = DESCRIPTION)]
-pub struct Args {
-    #[clap(short, long)]
-    user_name: String,
-    #[clap(short, long)]
-    password: String,
-    #[clap(short = 'a', long, default_value = USER_AGENT)]
-    user_agent: String,
-    #[clap(index = 1)]
-    ad_ids: Vec<u32>,
-}
+use wg_gesucht_updater::{Args, Config, Mode, Session};
 
 #[tokio::main]
 async fn main() {
-    let args = Args::parse();
+    let settings = match Args::parse().mode {
+        Mode::Cli(settings) => settings,
+        Mode::ConfigFile { config_file } => Config::from_file(config_file)
+            .unwrap_or_else(|error| {
+                eprintln!("Could not parse config file: {error}");
+                exit(1);
+            })
+            .into(),
+    };
 
-    match Session::new(USER_AGENT) {
+    match Session::new(&settings.user_agent) {
         Ok(mut session) => {
             session
-                .login(&args.user_name, &args.password)
+                .login(&settings.user_name, &settings.password)
                 .await
                 .unwrap_or_else(|error| {
                     eprintln!("{error}");
                     exit(2)
                 });
-            for ad_id in args.ad_ids {
+            for ad_id in settings.ad_ids {
                 session.update(ad_id).await.unwrap_or_else(|error| {
                     eprintln!("Could not update ad {ad_id}: {error}");
                     exit(3);

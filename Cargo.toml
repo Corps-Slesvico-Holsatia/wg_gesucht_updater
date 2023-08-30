@@ -12,4 +12,5 @@ clap = { version = "4.4.1", features = ["derive"] }
 reqwest = { version = "0.11.20", features = ["json", "cookies"] }
 scraper = "0.17.1"
 serde = { version = "1.0.188", features = ["derive"] }
+serde_rw = { version = "0.4.0", features = ["toml"] }
 tokio = { version = "1.32.0", features = ["rt-multi-thread", "macros"] }
