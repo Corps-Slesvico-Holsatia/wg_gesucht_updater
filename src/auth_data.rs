@@ -1,4 +1,4 @@
-use reqwest::header::{HeaderMap, HeaderValue};
+use reqwest::header::{HeaderMap, HeaderValue, InvalidHeaderValue};
 
 #[derive(Debug)]
 pub struct AuthData {
@@ -48,7 +48,7 @@ impl AuthData {
 }
 
 impl TryFrom<&AuthData> for HeaderMap {
-    type Error = anyhow::Error;
+    type Error = InvalidHeaderValue;
 
     fn try_from(auth_data: &AuthData) -> Result<Self, Self::Error> {
         let mut map = Self::new();
