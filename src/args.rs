@@ -1,10 +1,10 @@
 use crate::config::Config;
+use crate::session::USER_AGENT;
 use clap::{Parser, Subcommand};
 use serde_rw::FromFile;
 use std::path::PathBuf;
 
 const DESCRIPTION: &str = "Bump advertisements on wg-gesucht.de";
-const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36";
 
 #[derive(Debug, Parser)]
 #[command(author, version, about, long_about = DESCRIPTION)]

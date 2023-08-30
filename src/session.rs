@@ -8,6 +8,7 @@ use std::collections::HashMap;
 const LOGIN_URL: &str = "https://www.wg-gesucht.de/ajax/sessions.php?action=login";
 const OFFERS_LIST_URL: &str = "https://www.wg-gesucht.de/meine-anzeigen.html";
 const OFFER_MODIFY_URL: &str = "https://www.wg-gesucht.de/api/offers";
+pub const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36";
 
 #[derive(Debug)]
 pub struct Session {
@@ -177,5 +178,11 @@ impl Session {
             .header("User-Agent", &self.user_agent)
             .json(&PatchData::new(deactivated, auth_data.csrf_token()))
             .build()?)
+    }
+}
+
+impl Default for Session {
+    fn default() -> Self {
+        Self::new(USER_AGENT).expect("Could not build client")
     }
 }
