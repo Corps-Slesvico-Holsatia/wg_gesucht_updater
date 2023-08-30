@@ -8,14 +8,12 @@ use std::collections::HashMap;
 const LOGIN_URL: &str = "https://www.wg-gesucht.de/ajax/sessions.php?action=login";
 const OFFERS_LIST_URL: &str = "https://www.wg-gesucht.de/meine-anzeigen.html";
 const OFFER_MODIFY_URL: &str = "https://www.wg-gesucht.de/api/offers";
-const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36";
 
 #[derive(Debug)]
 pub struct Session {
-    user_name: String,
-    password: String,
     client: Client,
     auth_data: Option<AuthData>,
+    user_agent: String,
 }
 
 impl Session {
@@ -23,15 +21,14 @@ impl Session {
     ///
     /// # Errors
     /// Returns an `[reqwest::Error]` if the session client could not be constructed
-    pub fn new(user_name: &str, password: &str) -> Result<Self, Error> {
+    pub fn new(user_agent: &str) -> Result<Self, Error> {
         Client::builder()
             .cookie_store(true)
             .build()
             .map(|client| Self {
                 client,
-                user_name: user_name.to_string(),
-                password: password.to_string(),
                 auth_data: None,
+                user_agent: user_agent.to_string(),
             })
     }
 
@@ -39,8 +36,8 @@ impl Session {
     ///
     /// # Errors
     /// Returns an `[anyhow::Error]` on request errors
-    pub async fn login(&mut self) -> anyhow::Result<()> {
-        self.auth_data = Some(self.get_auth_data().await?);
+    pub async fn login(&mut self, user_name: &str, password: &str) -> anyhow::Result<()> {
+        self.auth_data = Some(self.get_auth_data(user_name, password).await?);
         Ok(())
     }
 
@@ -76,8 +73,10 @@ impl Session {
         }
     }
 
-    async fn get_auth_data(&mut self) -> anyhow::Result<AuthData> {
-        let (dev_ref, access_token) = self.get_dev_ref_and_access_token().await?;
+    async fn get_auth_data(&mut self, user_name: &str, password: &str) -> anyhow::Result<AuthData> {
+        let (dev_ref, access_token) = self
+            .get_dev_ref_and_access_token(user_name, password)
+            .await?;
         let (csrf_token, user_id) = self.get_csrf_token_and_user_id().await?;
         Ok(AuthData::new(
             user_id,
@@ -87,8 +86,12 @@ impl Session {
             csrf_token,
         ))
     }
-    async fn get_dev_ref_and_access_token(&mut self) -> anyhow::Result<(String, String)> {
-        let response = self.execute_login_request().await?;
+    async fn get_dev_ref_and_access_token(
+        &mut self,
+        user_name: &str,
+        password: &str,
+    ) -> anyhow::Result<(String, String)> {
+        let response = self.execute_login_request(user_name, password).await?;
         let cookies: HashMap<_, _> = response
             .cookies()
             .map(|cookie| (cookie.name().to_string(), cookie.value().to_string()))
@@ -108,7 +111,7 @@ impl Session {
                 .execute(
                     self.client
                         .get(OFFERS_LIST_URL)
-                        .header("User-Agent", USER_AGENT)
+                        .header("User-Agent", &self.user_agent)
                         .build()?,
                 )
                 .await?
@@ -139,18 +142,17 @@ impl Session {
         Ok((csrf_token.to_string(), user_id.to_string()))
     }
 
-    async fn execute_login_request(&mut self) -> Result<Response, Error> {
+    async fn execute_login_request(
+        &mut self,
+        user_name: &str,
+        password: &str,
+    ) -> Result<Response, Error> {
         self.client
             .execute(
                 self.client
                     .post(LOGIN_URL)
-                    .json(&LoginData::new(
-                        self.user_name.as_str(),
-                        self.password.as_str(),
-                        true,
-                        "de",
-                    ))
-                    .header("User-Agent", USER_AGENT)
+                    .json(&LoginData::new(user_name, password, true, "de"))
+                    .header("User-Agent", &self.user_agent)
                     .build()?,
             )
             .await
@@ -171,7 +173,7 @@ impl Session {
                 auth_data.user_id()
             ))
             .headers(auth_data.try_into()?)
-            .header("User-Agent", USER_AGENT)
+            .header("User-Agent", &self.user_agent)
             .json(&PatchData::new(deactivated, auth_data.csrf_token()))
             .build()?)
     }
