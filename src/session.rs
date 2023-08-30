@@ -47,31 +47,27 @@ impl Session {
     /// # Errors
     /// Returns an `[anyhow::Error]` on request errors
     pub async fn update(&mut self, ad_id: u32) -> anyhow::Result<()> {
-        if let Some(ref auth_data) = self.auth_data {
-            if self
-                .client
-                .execute(self.make_patch_request(ad_id, auth_data, true)?)
-                .await?
-                .status()
-                != StatusCode::from_u16(200)?
-            {
-                return Err(anyhow::Error::msg("Could not deactivate ad"));
-            }
-
-            if self
-                .client
-                .execute(self.make_patch_request(ad_id, auth_data, false)?)
-                .await?
-                .status()
-                != StatusCode::from_u16(200)?
-            {
-                return Err(anyhow::Error::msg("Could not reactivate ad"));
-            }
-
-            Ok(())
-        } else {
-            Err(anyhow::Error::msg("Not logged in"))
+        if self
+            .client
+            .execute(self.make_patch_request(ad_id, true)?)
+            .await?
+            .status()
+            != StatusCode::from_u16(200)?
+        {
+            return Err(anyhow::Error::msg("Could not deactivate ad"));
         }
+
+        if self
+            .client
+            .execute(self.make_patch_request(ad_id, false)?)
+            .await?
+            .status()
+            != StatusCode::from_u16(200)?
+        {
+            return Err(anyhow::Error::msg("Could not reactivate ad"));
+        }
+
+        Ok(())
     }
 
     async fn get_auth_data(&mut self, user_name: &str, password: &str) -> anyhow::Result<AuthData> {
@@ -162,24 +158,23 @@ impl Session {
             .build()
     }
 
-    fn make_patch_request(
-        &self,
-        ad_id: u32,
-        auth_data: &AuthData,
-        deactivated: bool,
-    ) -> anyhow::Result<Request> {
-        Ok(self
-            .client
-            .patch(format!(
-                "{}/{}/users/{}",
-                OFFER_MODIFY_URL,
-                ad_id,
-                auth_data.user_id()
-            ))
-            .headers(auth_data.try_into()?)
-            .header("User-Agent", &self.user_agent)
-            .json(&PatchData::new(deactivated, auth_data.csrf_token()))
-            .build()?)
+    fn make_patch_request(&self, ad_id: u32, deactivated: bool) -> anyhow::Result<Request> {
+        if let Some(ref auth_data) = self.auth_data {
+            Ok(self
+                .client
+                .patch(format!(
+                    "{}/{}/users/{}",
+                    OFFER_MODIFY_URL,
+                    ad_id,
+                    auth_data.user_id()
+                ))
+                .headers(auth_data.try_into()?)
+                .header("User-Agent", &self.user_agent)
+                .json(&PatchData::new(deactivated, auth_data.csrf_token()))
+                .build()?)
+        } else {
+            Err(anyhow::Error::msg("Not logged in"))
+        }
     }
 }
 
