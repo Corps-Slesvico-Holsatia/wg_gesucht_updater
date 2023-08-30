@@ -28,7 +28,9 @@ impl Args {
 
 #[derive(Debug, Subcommand)]
 pub enum Mode {
+    #[clap(about = "Pass settings via command line arguments")]
     Cli(Settings),
+    #[clap(about = "Load settings from a config file")]
     ConfigFile {
         #[clap(index = 1)]
         config_file: PathBuf,
