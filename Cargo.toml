@@ -1,0 +1,14 @@
+[package]
+name = "wg_gesucht_updater"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.75"
+clap = { version = "4.4.1", features = ["derive"] }
+reqwest = { version = "0.11.20", features = ["json", "cookies"] }
+scraper = "0.17.1"
+serde = { version = "1.0.188", features = ["derive"] }
+tokio = { version = "1.32.0", features = ["rt-multi-thread", "macros"] }
