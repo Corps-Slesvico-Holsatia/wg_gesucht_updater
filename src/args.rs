@@ -1,5 +1,6 @@
 use crate::config::Config;
 use clap::{Parser, Subcommand};
+use serde_rw::FromFile;
 use std::path::PathBuf;
 
 const DESCRIPTION: &str = "Bump advertisements on wg-gesucht.de";
@@ -9,7 +10,20 @@ const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 #[command(author, version, about, long_about = DESCRIPTION)]
 pub struct Args {
     #[clap(subcommand)]
-    pub mode: Mode,
+    mode: Mode,
+}
+
+impl Args {
+    /// Returns the configuration settings
+    ///
+    /// # Errors
+    /// Returns an `[anyhow::Error]` in case the config file parsing fails
+    pub fn settings(self) -> anyhow::Result<Settings> {
+        match self.mode {
+            Mode::Cli(settings) => Ok(settings),
+            Mode::ConfigFile { config_file } => Config::from_file(config_file).map(Into::into),
+        }
+    }
 }
 
 #[derive(Debug, Subcommand)]

@@ -1,19 +1,13 @@
 use clap::Parser;
-use serde_rw::FromFile;
 use std::process::exit;
-use wg_gesucht_updater::{Args, Config, Mode, Session};
+use wg_gesucht_updater::{Args, Session};
 
 #[tokio::main]
 async fn main() {
-    let settings = match Args::parse().mode {
-        Mode::Cli(settings) => settings,
-        Mode::ConfigFile { config_file } => Config::from_file(config_file)
-            .unwrap_or_else(|error| {
-                eprintln!("Could not parse config file: {error}");
-                exit(1);
-            })
-            .into(),
-    };
+    let settings = Args::parse().settings().unwrap_or_else(|error| {
+        eprintln!("Could not parse config file: {error}");
+        exit(1);
+    });
 
     match Session::new(&settings.user_agent) {
         Ok(mut session) => {
