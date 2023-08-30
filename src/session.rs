@@ -86,6 +86,7 @@ impl Session {
             csrf_token,
         ))
     }
+
     async fn get_dev_ref_and_access_token(
         &mut self,
         user_name: &str,
