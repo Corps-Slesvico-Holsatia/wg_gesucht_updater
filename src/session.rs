@@ -150,14 +150,16 @@ impl Session {
         password: &str,
     ) -> Result<Response, Error> {
         self.client
-            .execute(
-                self.client
-                    .post(LOGIN_URL)
-                    .json(&LoginData::new(user_name, password, true, "de"))
-                    .header("User-Agent", &self.user_agent)
-                    .build()?,
-            )
+            .execute(self.make_login_request(user_name, password)?)
             .await
+    }
+
+    fn make_login_request(&self, user_name: &str, password: &str) -> reqwest::Result<Request> {
+        self.client
+            .post(LOGIN_URL)
+            .json(&LoginData::new(user_name, password, true, "de"))
+            .header("User-Agent", &self.user_agent)
+            .build()
     }
 
     fn make_patch_request(
