@@ -2,9 +2,11 @@ use clap::Parser;
 use std::process::exit;
 use wg_gesucht_updater::Session;
 
+const DESCRIPTION: &str = "Bump advertisements on wg-gesucht.de";
 const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36";
 
 #[derive(Debug, Parser)]
+#[command(author, version, about, long_about = DESCRIPTION)]
 pub struct Args {
     #[clap(short, long)]
     user_name: String,
