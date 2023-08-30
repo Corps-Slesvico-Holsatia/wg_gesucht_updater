@@ -44,22 +44,6 @@ impl Session {
         Ok(())
     }
 
-    /// Update a set of advertisements
-    ///
-    /// # Errors
-    /// Returns an `[anyhow::Error]` on request errors
-    pub async fn update_all(&mut self, ad_ids: &[u32]) -> anyhow::Result<()> {
-        if matches!(self.auth_data, None) {
-            self.login().await?;
-        }
-
-        for ad_id in ad_ids {
-            self.update(*ad_id).await?;
-        }
-
-        Ok(())
-    }
-
     /// Update a single advertisement
     ///
     /// # Errors

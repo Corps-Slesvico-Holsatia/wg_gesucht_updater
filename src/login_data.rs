@@ -23,9 +23,3 @@ impl LoginData {
         }
     }
 }
-
-impl From<(&str, &str)> for LoginData {
-    fn from((user_name, password): (&str, &str)) -> Self {
-        Self::new(user_name, password, true, "de")
-    }
-}

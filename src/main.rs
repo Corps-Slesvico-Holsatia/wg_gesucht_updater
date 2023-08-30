@@ -16,15 +16,22 @@ pub struct Args {
 async fn main() {
     let args = Args::parse();
 
-    Session::new(args.user_name.as_str(), args.password.as_str())
-        .unwrap_or_else(|error| {
+    match Session::new(args.user_name.as_str(), args.password.as_str()) {
+        Ok(mut session) => {
+            session.login().await.unwrap_or_else(|error| {
+                eprintln!("{error}");
+                exit(2)
+            });
+            for ad_id in args.ad_ids {
+                session.update(ad_id).await.unwrap_or_else(|error| {
+                    eprintln!("Could not update ad {ad_id}: {error}");
+                    exit(3);
+                });
+            }
+        }
+        Err(error) => {
             eprintln!("{error}");
             exit(1);
-        })
-        .update_all(args.ad_ids.as_slice())
-        .await
-        .unwrap_or_else(|error| {
-            eprintln!("{error}");
-            exit(2);
-        });
+        }
+    }
 }
