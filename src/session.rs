@@ -134,10 +134,10 @@ impl Session {
                     .map_err(|_| anyhow!("Cannot build user ID selector"))?,
             )
             .next()
-            .ok_or_else(|| anyhow!("Could not find element with user ID token"))?
+            .ok_or_else(|| anyhow!("Could not find element with user ID"))?
             .value()
             .attr("data-user_id")
-            .ok_or_else(|| anyhow!("Could not extract user ID token from element"))?;
+            .ok_or_else(|| anyhow!("Could not extract user ID from element"))?;
         Ok((csrf_token.to_string(), user_id.to_string()))
     }
 
