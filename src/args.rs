@@ -41,14 +41,17 @@ pub struct Settings {
 
 #[derive(Debug, Subcommand)]
 pub enum Action {
+    #[clap(about = "Activate offers")]
     Activate {
         #[clap(index = 1)]
         ad_ids: Vec<u32>,
     },
+    #[clap(about = "Bump offers to newest")]
     Bump {
         #[clap(index = 1)]
         ad_ids: Vec<u32>,
     },
+    #[clap(about = "Deactivate offers")]
     Deactivate {
         #[clap(index = 1)]
         ad_ids: Vec<u32>,
