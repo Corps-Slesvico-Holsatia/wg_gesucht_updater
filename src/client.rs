@@ -15,8 +15,8 @@ pub struct Client {
     password: String,
     user_agent: String,
     timeout: Duration,
-    bump: Vec<u32>,
     activate: Vec<u32>,
+    bump: Vec<u32>,
     deactivate: Vec<u32>,
 }
 
@@ -50,16 +50,6 @@ impl Client {
         exit(exit_code);
     }
 
-    async fn deactivate_offers(&self, session: &mut Session, exit_code: &mut i32) {
-        for &id in &self.deactivate {
-            println!("Deactivating offer: {id}");
-            session.deactivate(id).await.unwrap_or_else(|error| {
-                eprintln!("Could not deactivate offer {id}: {error}");
-                *exit_code += 1;
-            });
-        }
-    }
-
     async fn activate_offers(&self, session: &mut Session, exit_code: &mut i32) {
         for &id in &self.activate {
             println!("Activating offer: {id}");
@@ -79,6 +69,16 @@ impl Client {
             });
         }
     }
+
+    async fn deactivate_offers(&self, session: &mut Session, exit_code: &mut i32) {
+        for &id in &self.deactivate {
+            println!("Deactivating offer: {id}");
+            session.deactivate(id).await.unwrap_or_else(|error| {
+                eprintln!("Could not deactivate offer {id}: {error}");
+                *exit_code += 1;
+            });
+        }
+    }
 }
 
 impl From<ConfigFile> for Client {
@@ -88,8 +88,8 @@ impl From<ConfigFile> for Client {
             password: config.password,
             user_agent: config.user_agent.unwrap_or_else(|| USER_AGENT.to_string()),
             timeout: config.timeout.unwrap_or(TIMEOUT),
-            bump: config.bump.unwrap_or_default(),
             activate: config.activate.unwrap_or_default(),
+            bump: config.bump.unwrap_or_default(),
             deactivate: config.deactivate.unwrap_or_default(),
         }
     }
@@ -102,12 +102,12 @@ impl From<Settings> for Client {
             password: settings.password,
             user_agent: settings.user_agent,
             timeout: settings.timeout,
-            bump: if let Action::Bump { ad_ids } = &settings.action {
+            activate: if let Action::Activate { ad_ids } = &settings.action {
                 ad_ids.clone()
             } else {
                 Vec::new()
             },
-            activate: if let Action::Activate { ad_ids } = &settings.action {
+            bump: if let Action::Bump { ad_ids } = &settings.action {
                 ad_ids.clone()
             } else {
                 Vec::new()

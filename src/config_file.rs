@@ -8,7 +8,7 @@ pub struct ConfigFile {
     pub(crate) password: String,
     pub(crate) user_agent: Option<String>,
     pub(crate) timeout: Option<Duration>,
-    pub(crate) bump: Option<Vec<u32>>,
     pub(crate) activate: Option<Vec<u32>>,
+    pub(crate) bump: Option<Vec<u32>>,
     pub(crate) deactivate: Option<Vec<u32>>,
 }

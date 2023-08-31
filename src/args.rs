@@ -41,11 +41,11 @@ pub struct Settings {
 
 #[derive(Debug, Subcommand)]
 pub enum Action {
-    Bump {
+    Activate {
         #[clap(index = 1)]
         ad_ids: Vec<u32>,
     },
-    Activate {
+    Bump {
         #[clap(index = 1)]
         ad_ids: Vec<u32>,
     },
