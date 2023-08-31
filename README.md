@@ -14,9 +14,9 @@ You'll find the built binary under `target/release/wg_gesucht_updater{,.exe}`.
 The program has two operation modes:
 
 ### CLI mode
-In *CLI mode* you can pass the credentials and Ad-IDs via command line arguments:
+In *CLI mode* you can pass the credentials and offer IDs via command line arguments:
 ```commandline
-$ wg_gesucht_updater cli --user-name=your@user.name --password=yourSecretPassword <ACTION> <ad_id> [<ad_id>...]
+$ wg_gesucht_updater cli --user-name=your@user.name --password=yourSecretPassword <ACTION> <id> [<id>...]
 ```
 The supported actions are `bump` to bump offers, `activate` to activate offers and `deactivate` to deactivate offers.
 
