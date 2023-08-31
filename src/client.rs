@@ -27,46 +27,56 @@ impl Client {
     /// exit code when all operations are done or errors occurred.
     pub async fn run(&self) {
         match Session::new(self.timeout, &self.user_agent) {
-            Ok(mut session) => {
-                session
-                    .login(&self.user_name, &self.password)
-                    .await
-                    .unwrap_or_else(|error| {
-                        eprintln!("{error}");
-                        exit(2)
-                    });
-                let mut exit_code = 0;
-
-                for &id in &self.deactivate {
-                    println!("Deactivating offer: {id}");
-                    session.deactivate(id).await.unwrap_or_else(|error| {
-                        eprintln!("Could not deactivate offer {id}: {error}");
-                        exit_code = 3;
-                    });
-                }
-
-                for &id in &self.activate {
-                    println!("Activating offer: {id}");
-                    session.activate(id).await.unwrap_or_else(|error| {
-                        eprintln!("Could not activate offer {id}: {error}");
-                        exit_code = 3;
-                    });
-                }
-
-                for &id in &self.bump {
-                    println!("Bumping offer: {id}");
-                    session.bump(id).await.unwrap_or_else(|error| {
-                        eprintln!("Could not bump offer {id}: {error}");
-                        exit_code = 3;
-                    });
-                }
-
-                exit(exit_code);
-            }
+            Ok(mut session) => self.run_with_session(&mut session).await,
             Err(error) => {
                 eprintln!("{error}");
                 exit(1);
             }
+        }
+    }
+
+    async fn run_with_session(&self, session: &mut Session) {
+        session
+            .login(&self.user_name, &self.password)
+            .await
+            .unwrap_or_else(|error| {
+                eprintln!("{error}");
+                exit(2)
+            });
+        let mut exit_code = 0;
+        self.deactivate_offers(session, &mut exit_code).await;
+        self.activate_offers(session, &mut exit_code).await;
+        self.bump_offers(session, &mut exit_code).await;
+        exit(exit_code);
+    }
+
+    async fn deactivate_offers(&self, session: &mut Session, exit_code: &mut i32) {
+        for &id in &self.deactivate {
+            println!("Deactivating offer: {id}");
+            session.deactivate(id).await.unwrap_or_else(|error| {
+                eprintln!("Could not deactivate offer {id}: {error}");
+                *exit_code += 1;
+            });
+        }
+    }
+
+    async fn activate_offers(&self, session: &mut Session, exit_code: &mut i32) {
+        for &id in &self.activate {
+            println!("Activating offer: {id}");
+            session.activate(id).await.unwrap_or_else(|error| {
+                eprintln!("Could not activate offer {id}: {error}");
+                *exit_code += 1;
+            });
+        }
+    }
+
+    async fn bump_offers(&self, session: &mut Session, exit_code: &mut i32) {
+        for &id in &self.bump {
+            println!("Bumping offer: {id}");
+            session.bump(id).await.unwrap_or_else(|error| {
+                eprintln!("Could not bump offer {id}: {error}");
+                *exit_code += 1;
+            });
         }
     }
 }
