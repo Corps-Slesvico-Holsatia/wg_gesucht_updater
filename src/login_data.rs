@@ -2,24 +2,29 @@ use crate::functions::bool_to_int_str;
 use serde::Serialize;
 
 #[derive(Debug, Serialize)]
-pub struct LoginData {
+pub struct LoginData<'creds> {
     #[serde(rename = "login_email_username")]
-    user_name: String,
+    user_name: &'creds str,
     #[serde(rename = "login_password")]
-    password: String,
+    password: &'creds str,
     #[serde(rename = "login_form_autologin", serialize_with = "bool_to_int_str")]
     autologin: bool,
     #[serde(rename = "display_language")]
-    language: String,
+    language: &'creds str,
 }
 
-impl LoginData {
-    pub fn new(user_name: &str, password: &str, autologin: bool, language: &str) -> Self {
+impl<'creds> LoginData<'creds> {
+    pub const fn new(
+        user_name: &'creds str,
+        password: &'creds str,
+        autologin: bool,
+        language: &'creds str,
+    ) -> Self {
         Self {
-            user_name: user_name.to_string(),
-            password: password.to_string(),
+            user_name,
+            password,
             autologin,
-            language: language.to_string(),
+            language,
         }
     }
 }
