@@ -64,7 +64,7 @@ impl Session {
     pub async fn deactivate(&mut self, ad_id: u32) -> anyhow::Result<()> {
         if self
             .client
-            .execute(self.make_patch_request(ad_id, true)?)
+            .execute(self.build_patch_request(ad_id, true)?)
             .await?
             .status()
             != StatusCode::from_u16(200)?
@@ -82,7 +82,7 @@ impl Session {
     pub async fn activate(&mut self, ad_id: u32) -> anyhow::Result<()> {
         if self
             .client
-            .execute(self.make_patch_request(ad_id, false)?)
+            .execute(self.build_patch_request(ad_id, false)?)
             .await?
             .status()
             != StatusCode::from_u16(200)?
@@ -148,11 +148,11 @@ impl Session {
         password: &str,
     ) -> Result<Response, Error> {
         self.client
-            .execute(self.make_login_request(user_name, password)?)
+            .execute(self.build_login_request(user_name, password)?)
             .await
     }
 
-    fn make_login_request(&self, user_name: &str, password: &str) -> reqwest::Result<Request> {
+    fn build_login_request(&self, user_name: &str, password: &str) -> reqwest::Result<Request> {
         self.client
             .post(LOGIN_URL)
             .json(&LoginData::new(user_name, password, true, "de"))
@@ -161,7 +161,7 @@ impl Session {
             .build()
     }
 
-    fn make_patch_request(&self, ad_id: u32, deactivated: bool) -> anyhow::Result<Request> {
+    fn build_patch_request(&self, ad_id: u32, deactivated: bool) -> anyhow::Result<Request> {
         if let Some(ref auth_data) = self.auth_data {
             Ok(self
                 .client
