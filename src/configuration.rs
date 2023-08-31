@@ -31,33 +31,25 @@ impl From<ConfigFile> for Configuration {
 
 impl From<Settings> for Configuration {
     fn from(settings: Settings) -> Self {
-        match settings.action {
-            Action::Bump { ad_ids } => Self {
-                user_name: settings.user_name,
-                password: settings.password,
-                user_agent: settings.user_agent,
-                timeout: settings.timeout,
-                bump: ad_ids,
-                activate: Vec::new(),
-                deactivate: Vec::new(),
+        Self {
+            user_name: settings.user_name,
+            password: settings.password,
+            user_agent: settings.user_agent,
+            timeout: settings.timeout,
+            bump: if let Action::Bump { ad_ids } = &settings.action {
+                ad_ids.clone()
+            } else {
+                Vec::new()
             },
-            Action::Activate { ad_ids } => Self {
-                user_name: settings.user_name,
-                password: settings.password,
-                user_agent: settings.user_agent,
-                timeout: settings.timeout,
-                bump: Vec::new(),
-                activate: ad_ids,
-                deactivate: Vec::new(),
+            activate: if let Action::Activate { ad_ids } = &settings.action {
+                ad_ids.clone()
+            } else {
+                Vec::new()
             },
-            Action::Deactivate { ad_ids } => Self {
-                user_name: settings.user_name,
-                password: settings.password,
-                user_agent: settings.user_agent,
-                timeout: settings.timeout,
-                bump: Vec::new(),
-                activate: Vec::new(),
-                deactivate: ad_ids,
+            deactivate: if let Action::Deactivate { ad_ids } = &settings.action {
+                ad_ids.clone()
+            } else {
+                Vec::new()
             },
         }
     }
