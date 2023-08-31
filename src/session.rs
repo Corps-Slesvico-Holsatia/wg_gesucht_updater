@@ -125,18 +125,21 @@ impl Session {
     async fn get_csrf_token_and_user_id(&mut self) -> anyhow::Result<(String, String)> {
         scrape_csrf_token_and_user_id(&Html::parse_document(&String::from_utf8(
             self.client
-                .execute(
-                    self.client
-                        .get(OFFERS_LIST_URL)
-                        .header("User-Agent", &self.user_agent)
-                        .timeout(self.timeout)
-                        .build()?,
-                )
+                .execute(self.build_offer_list_request()?)
                 .await?
                 .bytes()
                 .await?
                 .to_vec(),
         )?))
+    }
+
+    fn build_offer_list_request(&self) -> anyhow::Result<Request> {
+        Ok(self
+            .client
+            .get(OFFERS_LIST_URL)
+            .header("User-Agent", &self.user_agent)
+            .timeout(self.timeout)
+            .build()?)
     }
 
     async fn execute_login_request(
