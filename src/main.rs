@@ -18,13 +18,17 @@ async fn main() {
                     eprintln!("{error}");
                     exit(2)
                 });
+            let mut exit_code = 0;
+
             for ad_id in settings.ad_ids {
                 println!("Bumping ad: {ad_id}");
                 session.update(ad_id).await.unwrap_or_else(|error| {
                     eprintln!("Could not update ad {ad_id}: {error}");
-                    exit(3);
+                    exit_code = 3;
                 });
             }
+
+            exit(exit_code);
         }
         Err(error) => {
             eprintln!("{error}");
