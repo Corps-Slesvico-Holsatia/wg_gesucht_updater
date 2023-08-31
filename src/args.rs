@@ -1,4 +1,3 @@
-use crate::functions::parse_duration;
 use crate::session::USER_AGENT;
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
@@ -33,7 +32,7 @@ pub struct Settings {
     pub(crate) password: String,
     #[clap(short = 'a', long, default_value = USER_AGENT)]
     pub(crate) user_agent: String,
-    #[clap(short, long, value_parser = parse_duration, name = "SECS", default_value = "10")]
+    #[clap(short, long, value_parser = |secs: &str| secs.parse().map(Duration::from_secs), name = "SECS", default_value = "10")]
     pub(crate) timeout: Duration,
     #[clap(subcommand)]
     pub(crate) action: Action,
