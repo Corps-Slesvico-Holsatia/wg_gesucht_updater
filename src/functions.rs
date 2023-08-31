@@ -11,5 +11,5 @@ where
 }
 
 pub fn parse_duration(secs: &str) -> Result<Duration, ParseIntError> {
-    Ok(Duration::from_secs(secs.parse()?))
+    secs.parse().map(Duration::from_secs)
 }
