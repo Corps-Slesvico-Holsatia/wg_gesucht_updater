@@ -11,7 +11,7 @@ wg_gesucht_updater cli --user-name=your@user.name --password=yourSecretPassword 
 ```
 
 ### Config file mode
-In *config file mode* you can pass the path to a TOML configuration file:
+In *config file mode* you can pass the path to a [TOML](https://toml.io/en/) configuration file:
 ```commandline
 wg_gesucht_updater config-file /etc/wg-gesucht.toml
 ```
