@@ -193,13 +193,14 @@ impl Default for Session {
 fn scrape_dev_ref_and_access_token(
     cookies: &HashMap<String, String>,
 ) -> anyhow::Result<(&str, &str)> {
-    let dev_ref = cookies
-        .get("X-Dev-Ref-No")
-        .ok_or_else(|| anyhow!("X-Dev-Ref-No not found in cookies"))?;
-    let access_token = cookies
-        .get("X-Access-Token")
-        .ok_or_else(|| anyhow!("X-Access-Token not found in cookies"))?;
-    Ok((dev_ref, access_token))
+    Ok((
+        cookies
+            .get("X-Dev-Ref-No")
+            .ok_or_else(|| anyhow!("X-Dev-Ref-No not found in cookies"))?,
+        cookies
+            .get("X-Access-Token")
+            .ok_or_else(|| anyhow!("X-Access-Token not found in cookies"))?,
+    ))
 }
 
 fn scrape_csrf_token_and_user_id(html: &Html) -> anyhow::Result<(&str, &str)> {
