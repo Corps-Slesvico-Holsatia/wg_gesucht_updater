@@ -53,6 +53,15 @@ impl Session {
     /// # Errors
     /// Returns an `[anyhow::Error]` on request errors
     pub async fn bump(&mut self, ad_id: u32) -> anyhow::Result<()> {
+        self.deactivate(ad_id).await?;
+        self.activate(ad_id).await
+    }
+
+    /// Deactivate an advertisement
+    ///
+    /// # Errors
+    /// Returns an `[anyhow::Error]` on request errors
+    pub async fn deactivate(&mut self, ad_id: u32) -> anyhow::Result<()> {
         if self
             .client
             .execute(self.make_patch_request(ad_id, true)?)
@@ -63,6 +72,14 @@ impl Session {
             return Err(anyhow!("Could not deactivate ad"));
         }
 
+        Ok(())
+    }
+
+    /// Activate an advertisement
+    ///
+    /// # Errors
+    /// Returns an `[anyhow::Error]` on request errors
+    pub async fn activate(&mut self, ad_id: u32) -> anyhow::Result<()> {
         if self
             .client
             .execute(self.make_patch_request(ad_id, false)?)
@@ -70,7 +87,7 @@ impl Session {
             .status()
             != StatusCode::from_u16(200)?
         {
-            return Err(anyhow!("Could not reactivate ad"));
+            return Err(anyhow!("Could not activate ad"));
         }
 
         Ok(())
