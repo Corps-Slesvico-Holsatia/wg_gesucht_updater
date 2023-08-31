@@ -203,8 +203,8 @@ fn scrape_dev_ref_and_access_token(
 }
 
 fn scrape_csrf_token_and_user_id(html: &Html) -> anyhow::Result<(&str, &str)> {
-    let csrf_token = html
-        .select(
+    Ok((
+        html.select(
             &Selector::parse("a[data-csrf_token]")
                 .map_err(|_| anyhow!("Cannot build CSRF token selector"))?,
         )
@@ -212,9 +212,8 @@ fn scrape_csrf_token_and_user_id(html: &Html) -> anyhow::Result<(&str, &str)> {
         .ok_or_else(|| anyhow!("Could not find element with CSRF token"))?
         .value()
         .attr("data-csrf_token")
-        .ok_or_else(|| anyhow!("Could extract not CSRF token from element"))?;
-    let user_id = html
-        .select(
+        .ok_or_else(|| anyhow!("Could extract not CSRF token from element"))?,
+        html.select(
             &Selector::parse("a[data-user_id]")
                 .map_err(|_| anyhow!("Cannot build user ID selector"))?,
         )
@@ -222,6 +221,6 @@ fn scrape_csrf_token_and_user_id(html: &Html) -> anyhow::Result<(&str, &str)> {
         .ok_or_else(|| anyhow!("Could not find element with user ID"))?
         .value()
         .attr("data-user_id")
-        .ok_or_else(|| anyhow!("Could not extract user ID from element"))?;
-    Ok((csrf_token, user_id))
+        .ok_or_else(|| anyhow!("Could not extract user ID from element"))?,
+    ))
 }
