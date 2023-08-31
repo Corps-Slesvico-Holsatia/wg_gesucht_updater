@@ -21,4 +21,4 @@ jobs:
     - name: Run tests
       run: cargo test --verbose
     - name: Lint with clippy
-      run: cargo clippy --all-features -- -W clippy::pedantic -W clippy::nursery -W clippy::unwrap_used -W clippy::cargo
+      run: cargo clippy --all-features -- -W clippy::pedantic -W clippy::nursery -W clippy::unwrap_used -W clippy::cargo -A clippy::multiple_crate_versions
