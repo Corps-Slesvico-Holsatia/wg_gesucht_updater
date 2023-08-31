@@ -1,8 +1,8 @@
 use crate::config::Config;
+use crate::functions::parse_duration;
 use crate::session::{TIMEOUT, USER_AGENT};
 use clap::{Parser, Subcommand};
 use serde_rw::FromFile;
-use std::num::ParseIntError;
 use std::path::PathBuf;
 use std::time::Duration;
 
@@ -63,8 +63,4 @@ impl From<Config> for Settings {
             ad_ids: config.ad_ids,
         }
     }
-}
-
-fn parse_duration(secs: &str) -> Result<Duration, ParseIntError> {
-    Ok(Duration::from_secs(secs.parse()?))
 }
