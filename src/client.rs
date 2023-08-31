@@ -1,7 +1,6 @@
-use std::process::exit;
-
 use crate::settings::Settings;
 use crate::{Args, Session};
+use std::process::exit;
 
 /// Client to operate on offers at wg-gesucht.de
 ///

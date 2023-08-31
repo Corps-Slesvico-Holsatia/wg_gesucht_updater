@@ -1,8 +1,6 @@
-use std::path::PathBuf;
-
-use clap::{Parser, Subcommand};
-
 use crate::session::{TIMEOUT, USER_AGENT};
+use clap::{Parser, Subcommand};
+use std::path::PathBuf;
 
 const DESCRIPTION: &str = "Bump advertisements on wg-gesucht.de";
 

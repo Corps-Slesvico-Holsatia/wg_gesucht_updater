@@ -1,11 +1,9 @@
-use std::time::Duration;
-
-use serde_rw::FromFile;
-
 use crate::args::{Action, Mode, Parameters};
 use crate::config_file::ConfigFile;
 use crate::session::{TIMEOUT, USER_AGENT};
 use crate::Args;
+use serde_rw::FromFile;
+use std::time::Duration;
 
 /// Source-agnostic settings
 ///
