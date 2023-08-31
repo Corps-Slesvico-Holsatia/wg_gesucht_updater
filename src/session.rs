@@ -118,7 +118,7 @@ impl Session {
             .cookies()
             .map(|cookie| (cookie.name().to_string(), cookie.value().to_string()))
             .collect();
-        let (dev_ref, access_token) = parse_dev_ref_and_access_token(&cookies)?;
+        let (dev_ref, access_token) = scrape_dev_ref_and_access_token(&cookies)?;
         Ok((dev_ref.to_string(), access_token.to_string()))
     }
 
@@ -190,7 +190,7 @@ impl Default for Session {
     }
 }
 
-fn parse_dev_ref_and_access_token(
+fn scrape_dev_ref_and_access_token(
     cookies: &HashMap<String, String>,
 ) -> anyhow::Result<(&str, &str)> {
     let dev_ref = cookies
