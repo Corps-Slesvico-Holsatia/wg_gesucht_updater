@@ -15,8 +15,8 @@ pub const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWeb
 
 #[derive(Debug)]
 pub struct Session {
-    user_agent: String,
     timeout: Duration,
+    user_agent: String,
     client: Client,
     auth_data: Option<AuthData>,
 }
@@ -26,15 +26,15 @@ impl Session {
     ///
     /// # Errors
     /// Returns an `[reqwest::Error]` if the session client could not be constructed
-    pub fn new(user_agent: &str, timeout: Duration) -> Result<Self, Error> {
+    pub fn new(timeout: Duration, user_agent: &str) -> Result<Self, Error> {
         Client::builder()
             .cookie_store(true)
             .build()
             .map(|client| Self {
+                timeout,
+                user_agent: user_agent.to_string(),
                 client,
                 auth_data: None,
-                user_agent: user_agent.to_string(),
-                timeout,
             })
     }
 
@@ -184,7 +184,7 @@ impl Session {
 
 impl Default for Session {
     fn default() -> Self {
-        Self::new(USER_AGENT, TIMEOUT).expect("Could not build client")
+        Self::new(TIMEOUT, USER_AGENT).expect("Could not build client")
     }
 }
 
