@@ -1,0 +1,10 @@
+[Unit]
+Description=Bump shared flat ads on wg-gesucht.de
+After=network-online.target
+Requires=network-online.target
+
+[Service]
+Type=oneshot
+DynamicUser=on
+ExecStart=/usr/local/bin/wg_gesucht_updater config-file /etc/wg-gesucht.toml
+ProtectSystem=full
