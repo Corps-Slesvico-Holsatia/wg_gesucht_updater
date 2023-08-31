@@ -94,22 +94,18 @@ impl Session {
         user_name: &str,
         password: &str,
     ) -> anyhow::Result<(String, String)> {
-        let response = self.execute_login_request(user_name, password).await?;
-        let cookies: HashMap<_, _> = response
-            .cookies()
-            .map(|cookie| (cookie.name().to_string(), cookie.value().to_string()))
-            .collect();
-        let dev_ref = cookies
-            .get("X-Dev-Ref-No")
-            .ok_or_else(|| anyhow!("X-Dev-Ref-No not found in cookies"))?;
-        let access_token = cookies
-            .get("X-Access-Token")
-            .ok_or_else(|| anyhow!("X-Access-Token not found in cookies"))?;
-        Ok((dev_ref.to_string(), access_token.to_string()))
+        parse_dev_ref_and_access_token(
+            &self
+                .execute_login_request(user_name, password)
+                .await?
+                .cookies()
+                .map(|cookie| (cookie.name().to_string(), cookie.value().to_string()))
+                .collect::<HashMap<_, _>>(),
+        )
     }
 
     async fn get_csrf_token_and_user_id(&mut self) -> anyhow::Result<(String, String)> {
-        let html = Html::parse_document(&String::from_utf8(
+        scrape_csrf_token_and_user_id(&Html::parse_document(&String::from_utf8(
             self.client
                 .execute(
                     self.client
@@ -122,28 +118,7 @@ impl Session {
                 .bytes()
                 .await?
                 .to_vec(),
-        )?);
-        let csrf_token = html
-            .select(
-                &Selector::parse("a[data-csrf_token]")
-                    .map_err(|_| anyhow!("Cannot build CSRF token selector"))?,
-            )
-            .next()
-            .ok_or_else(|| anyhow!("Could not find element with CSRF token"))?
-            .value()
-            .attr("data-csrf_token")
-            .ok_or_else(|| anyhow!("Could extract not CSRF token from element"))?;
-        let user_id = html
-            .select(
-                &Selector::parse("a[data-user_id]")
-                    .map_err(|_| anyhow!("Cannot build user ID selector"))?,
-            )
-            .next()
-            .ok_or_else(|| anyhow!("Could not find element with user ID"))?
-            .value()
-            .attr("data-user_id")
-            .ok_or_else(|| anyhow!("Could not extract user ID from element"))?;
-        Ok((csrf_token.to_string(), user_id.to_string()))
+        )?))
     }
 
     async fn execute_login_request(
@@ -190,4 +165,40 @@ impl Default for Session {
     fn default() -> Self {
         Self::new(USER_AGENT, TIMEOUT).expect("Could not build client")
     }
+}
+
+fn parse_dev_ref_and_access_token(
+    cookies: &HashMap<String, String>,
+) -> anyhow::Result<(String, String)> {
+    let dev_ref = cookies
+        .get("X-Dev-Ref-No")
+        .ok_or_else(|| anyhow!("X-Dev-Ref-No not found in cookies"))?;
+    let access_token = cookies
+        .get("X-Access-Token")
+        .ok_or_else(|| anyhow!("X-Access-Token not found in cookies"))?;
+    Ok((dev_ref.to_string(), access_token.to_string()))
+}
+
+fn scrape_csrf_token_and_user_id(html: &Html) -> anyhow::Result<(String, String)> {
+    let csrf_token = html
+        .select(
+            &Selector::parse("a[data-csrf_token]")
+                .map_err(|_| anyhow!("Cannot build CSRF token selector"))?,
+        )
+        .next()
+        .ok_or_else(|| anyhow!("Could not find element with CSRF token"))?
+        .value()
+        .attr("data-csrf_token")
+        .ok_or_else(|| anyhow!("Could extract not CSRF token from element"))?;
+    let user_id = html
+        .select(
+            &Selector::parse("a[data-user_id]")
+                .map_err(|_| anyhow!("Cannot build user ID selector"))?,
+        )
+        .next()
+        .ok_or_else(|| anyhow!("Could not find element with user ID"))?
+        .value()
+        .attr("data-user_id")
+        .ok_or_else(|| anyhow!("Could not extract user ID from element"))?;
+    Ok((csrf_token.to_string(), user_id.to_string()))
 }
