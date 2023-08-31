@@ -1,6 +1,8 @@
-use crate::session::{TIMEOUT, USER_AGENT};
-use clap::{Parser, Subcommand};
 use std::path::PathBuf;
+
+use clap::{Parser, Subcommand};
+
+use crate::session::{TIMEOUT, USER_AGENT};
 
 const DESCRIPTION: &str = "Bump advertisements on wg-gesucht.de";
 
@@ -15,7 +17,7 @@ pub struct Args {
 #[derive(Debug, Subcommand)]
 pub enum Mode {
     #[clap(about = "Pass settings via command line arguments")]
-    Cli(Settings),
+    Cli(Parameters),
     #[clap(about = "Load settings from a config file")]
     ConfigFile {
         #[clap(index = 1)]
@@ -24,7 +26,7 @@ pub enum Mode {
 }
 
 #[derive(Debug, Parser)]
-pub struct Settings {
+pub struct Parameters {
     #[clap(short, long)]
     pub(crate) user_name: String,
     #[clap(short, long)]
