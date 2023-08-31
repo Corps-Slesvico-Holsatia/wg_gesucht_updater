@@ -3,7 +3,7 @@ use std::process::exit;
 use crate::settings::Settings;
 use crate::{Args, Session};
 
-/// Source-agnostic client
+/// Client to operate on offers at wg-gesucht.de
 ///
 /// The client's settings can be either parsed from the
 /// command line arguments or from a configuration file.
