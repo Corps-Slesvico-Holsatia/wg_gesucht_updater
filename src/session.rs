@@ -48,11 +48,11 @@ impl Session {
             .map(|auth_data| self.auth_data = Some(auth_data))
     }
 
-    /// Update a single advertisement
+    /// Bump an advertisement
     ///
     /// # Errors
     /// Returns an `[anyhow::Error]` on request errors
-    pub async fn update(&mut self, ad_id: u32) -> anyhow::Result<()> {
+    pub async fn bump(&mut self, ad_id: u32) -> anyhow::Result<()> {
         if self
             .client
             .execute(self.make_patch_request(ad_id, true)?)

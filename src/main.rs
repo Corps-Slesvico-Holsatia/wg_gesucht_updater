@@ -22,7 +22,7 @@ async fn main() {
 
             for ad_id in settings.ad_ids {
                 println!("Bumping ad: {ad_id}");
-                session.update(ad_id).await.unwrap_or_else(|error| {
+                session.bump(ad_id).await.unwrap_or_else(|error| {
                     eprintln!("Could not update ad {ad_id}: {error}");
                     exit_code = 3;
                 });
