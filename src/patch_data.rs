@@ -2,14 +2,14 @@ use crate::functions::bool_to_int_str;
 use serde::Serialize;
 
 #[derive(Debug, Serialize)]
-pub struct PatchData<'a> {
+pub struct PatchData<'token> {
     #[serde(serialize_with = "bool_to_int_str")]
     deactivated: bool,
-    csrf_token: &'a str,
+    csrf_token: &'token str,
 }
 
-impl<'a> PatchData<'a> {
-    pub const fn new(deactivated: bool, csrf_token: &'a str) -> Self {
+impl<'token> PatchData<'token> {
+    pub const fn new(deactivated: bool, csrf_token: &'token str) -> Self {
         Self {
             deactivated,
             csrf_token,
