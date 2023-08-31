@@ -135,15 +135,6 @@ impl Session {
         Ok((csrf_token.to_string(), user_id.to_string()))
     }
 
-    fn build_offer_list_request(&self) -> anyhow::Result<Request> {
-        Ok(self
-            .client
-            .get(OFFERS_LIST_URL)
-            .header("User-Agent", &self.user_agent)
-            .timeout(self.timeout)
-            .build()?)
-    }
-
     async fn execute_login_request(
         &mut self,
         user_name: &str,
@@ -152,6 +143,15 @@ impl Session {
         self.client
             .execute(self.build_login_request(user_name, password)?)
             .await
+    }
+
+    fn build_offer_list_request(&self) -> anyhow::Result<Request> {
+        Ok(self
+            .client
+            .get(OFFERS_LIST_URL)
+            .header("User-Agent", &self.user_agent)
+            .timeout(self.timeout)
+            .build()?)
     }
 
     fn build_login_request(&self, user_name: &str, password: &str) -> reqwest::Result<Request> {
