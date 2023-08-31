@@ -6,6 +6,7 @@ use std::time::Duration;
 
 const DESCRIPTION: &str = "Bump advertisements on wg-gesucht.de";
 
+/// Command line arguments
 #[derive(Debug, Parser)]
 #[command(author, version, about, long_about = DESCRIPTION)]
 pub struct Args {

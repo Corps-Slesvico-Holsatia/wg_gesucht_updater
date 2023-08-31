@@ -1,6 +1,7 @@
 use serde::Deserialize;
 use std::time::Duration;
 
+/// Configuration file content
 #[derive(Deserialize)]
 pub struct ConfigFile {
     pub(crate) user_name: String,

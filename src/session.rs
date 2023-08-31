@@ -13,6 +13,7 @@ const OFFER_MODIFY_URL: &str = "https://www.wg-gesucht.de/api/offers";
 pub const TIMEOUT: Duration = Duration::from_secs(10);
 pub const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36";
 
+/// Session with the wg-gesucht web API
 #[derive(Debug)]
 pub struct Session {
     timeout: Duration,
@@ -23,6 +24,10 @@ pub struct Session {
 
 impl Session {
     /// Create a new session to the "WG gesucht" API
+    ///
+    /// # Attributes
+    /// * `timeout` - The HTTP request timeout
+    /// * `user_agent` - The HTTP user agent to send with the requests
     ///
     /// # Errors
     /// Returns an `[reqwest::Error]` if the session client could not be constructed
@@ -40,6 +45,13 @@ impl Session {
 
     /// Initiate API session
     ///
+    /// A login must be performed as the first call to the API
+    /// in order to use subsequent requests to modify offers.
+    ///
+    /// # Attributes
+    /// * `user_name` - The user name of the wg-gesucht.de account
+    /// * `password` - The passwort associated with above user name
+    ///
     /// # Errors
     /// Returns an `[anyhow::Error]` on request errors
     pub async fn login(&mut self, user_name: &str, password: &str) -> anyhow::Result<()> {
@@ -48,23 +60,31 @@ impl Session {
             .map(|auth_data| self.auth_data = Some(auth_data))
     }
 
-    /// Bump an advertisement
+    /// Bump an offer
+    ///
+    /// This is equivalent of deactivating and then re-activating an offer.
+    ///
+    /// # Attributes
+    /// * `id` - The offer ID (also referred to as "ad id")
     ///
     /// # Errors
     /// Returns an `[anyhow::Error]` on request errors
-    pub async fn bump(&mut self, ad_id: u32) -> anyhow::Result<()> {
-        self.deactivate(ad_id).await?;
-        self.activate(ad_id).await
+    pub async fn bump(&mut self, id: u32) -> anyhow::Result<()> {
+        self.deactivate(id).await?;
+        self.activate(id).await
     }
 
-    /// Deactivate an advertisement
+    /// Deactivate an offer
+    ///
+    /// # Attributes
+    /// * `id` - The offer ID (also referred to as "ad id")
     ///
     /// # Errors
     /// Returns an `[anyhow::Error]` on request errors
-    pub async fn deactivate(&mut self, ad_id: u32) -> anyhow::Result<()> {
+    pub async fn deactivate(&mut self, id: u32) -> anyhow::Result<()> {
         if self
             .client
-            .execute(self.build_patch_request(ad_id, true)?)
+            .execute(self.build_patch_request(id, true)?)
             .await?
             .status()
             != StatusCode::from_u16(200)?
@@ -75,14 +95,17 @@ impl Session {
         Ok(())
     }
 
-    /// Activate an advertisement
+    /// Activate an offer
+    ///
+    /// # Attributes
+    /// * `id` - The offer ID (also referred to as "ad id").
     ///
     /// # Errors
     /// Returns an `[anyhow::Error]` on request errors
-    pub async fn activate(&mut self, ad_id: u32) -> anyhow::Result<()> {
+    pub async fn activate(&mut self, id: u32) -> anyhow::Result<()> {
         if self
             .client
-            .execute(self.build_patch_request(ad_id, false)?)
+            .execute(self.build_patch_request(id, false)?)
             .await?
             .status()
             != StatusCode::from_u16(200)?
@@ -163,14 +186,14 @@ impl Session {
             .build()
     }
 
-    fn build_patch_request(&self, ad_id: u32, deactivated: bool) -> anyhow::Result<Request> {
+    fn build_patch_request(&self, id: u32, deactivated: bool) -> anyhow::Result<Request> {
         if let Some(ref auth_data) = self.auth_data {
             Ok(self
                 .client
                 .patch(format!(
                     "{}/{}/users/{}",
                     OFFER_MODIFY_URL,
-                    ad_id,
+                    id,
                     auth_data.user_id()
                 ))
                 .headers(auth_data.try_into()?)
