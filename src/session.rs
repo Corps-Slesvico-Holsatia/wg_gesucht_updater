@@ -112,25 +112,27 @@ impl Session {
         user_name: &str,
         password: &str,
     ) -> anyhow::Result<(String, String)> {
-        parse_dev_ref_and_access_token(
-            &self
-                .execute_login_request(user_name, password)
-                .await?
-                .cookies()
-                .map(|cookie| (cookie.name().to_string(), cookie.value().to_string()))
-                .collect::<HashMap<_, _>>(),
-        )
+        let cookies: HashMap<_, _> = self
+            .execute_login_request(user_name, password)
+            .await?
+            .cookies()
+            .map(|cookie| (cookie.name().to_string(), cookie.value().to_string()))
+            .collect();
+        let (dev_ref, access_token) = parse_dev_ref_and_access_token(&cookies)?;
+        Ok((dev_ref.to_string(), access_token.to_string()))
     }
 
     async fn get_csrf_token_and_user_id(&mut self) -> anyhow::Result<(String, String)> {
-        scrape_csrf_token_and_user_id(&Html::parse_document(&String::from_utf8(
+        let html = Html::parse_document(&String::from_utf8(
             self.client
                 .execute(self.build_offer_list_request()?)
                 .await?
                 .bytes()
                 .await?
                 .to_vec(),
-        )?))
+        )?);
+        let (csrf_token, user_id) = scrape_csrf_token_and_user_id(&html)?;
+        Ok((csrf_token.to_string(), user_id.to_string()))
     }
 
     fn build_offer_list_request(&self) -> anyhow::Result<Request> {
@@ -190,17 +192,17 @@ impl Default for Session {
 
 fn parse_dev_ref_and_access_token(
     cookies: &HashMap<String, String>,
-) -> anyhow::Result<(String, String)> {
+) -> anyhow::Result<(&str, &str)> {
     let dev_ref = cookies
         .get("X-Dev-Ref-No")
         .ok_or_else(|| anyhow!("X-Dev-Ref-No not found in cookies"))?;
     let access_token = cookies
         .get("X-Access-Token")
         .ok_or_else(|| anyhow!("X-Access-Token not found in cookies"))?;
-    Ok((dev_ref.to_string(), access_token.to_string()))
+    Ok((dev_ref, access_token))
 }
 
-fn scrape_csrf_token_and_user_id(html: &Html) -> anyhow::Result<(String, String)> {
+fn scrape_csrf_token_and_user_id(html: &Html) -> anyhow::Result<(&str, &str)> {
     let csrf_token = html
         .select(
             &Selector::parse("a[data-csrf_token]")
@@ -221,5 +223,5 @@ fn scrape_csrf_token_and_user_id(html: &Html) -> anyhow::Result<(String, String)
         .value()
         .attr("data-user_id")
         .ok_or_else(|| anyhow!("Could not extract user ID from element"))?;
-    Ok((csrf_token.to_string(), user_id.to_string()))
+    Ok((csrf_token, user_id))
 }
