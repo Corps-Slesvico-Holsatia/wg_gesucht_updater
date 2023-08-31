@@ -102,18 +102,18 @@ impl From<Settings> for Client {
             password: settings.password,
             user_agent: settings.user_agent,
             timeout: settings.timeout,
-            activate: if let Action::Activate { ad_ids } = &settings.action {
-                ad_ids.clone()
+            activate: if let Action::Activate { offers } = &settings.action {
+                offers.clone()
             } else {
                 Vec::new()
             },
-            bump: if let Action::Bump { ad_ids } = &settings.action {
-                ad_ids.clone()
+            bump: if let Action::Bump { offers } = &settings.action {
+                offers.clone()
             } else {
                 Vec::new()
             },
-            deactivate: if let Action::Deactivate { ad_ids } = &settings.action {
-                ad_ids.clone()
+            deactivate: if let Action::Deactivate { offers } = &settings.action {
+                offers.clone()
             } else {
                 Vec::new()
             },
