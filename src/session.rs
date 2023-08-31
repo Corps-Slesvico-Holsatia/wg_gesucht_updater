@@ -1,6 +1,7 @@
 use crate::auth_data::AuthData;
 use crate::login_data::LoginData;
 use crate::patch_data::PatchData;
+use anyhow::anyhow;
 use reqwest::{Client, Error, Request, Response, StatusCode};
 use scraper::{Html, Selector};
 use std::collections::HashMap;
@@ -54,7 +55,7 @@ impl Session {
             .status()
             != StatusCode::from_u16(200)?
         {
-            return Err(anyhow::Error::msg("Could not deactivate ad"));
+            return Err(anyhow!("Could not deactivate ad"));
         }
 
         if self
@@ -64,7 +65,7 @@ impl Session {
             .status()
             != StatusCode::from_u16(200)?
         {
-            return Err(anyhow::Error::msg("Could not reactivate ad"));
+            return Err(anyhow!("Could not reactivate ad"));
         }
 
         Ok(())
@@ -96,10 +97,10 @@ impl Session {
             .collect();
         let dev_ref = cookies
             .get("X-Dev-Ref-No")
-            .ok_or_else(|| anyhow::Error::msg("X-Dev-Ref-No not found in cookies"))?;
+            .ok_or_else(|| anyhow!("X-Dev-Ref-No not found in cookies"))?;
         let access_token = cookies
             .get("X-Access-Token")
-            .ok_or_else(|| anyhow::Error::msg("X-Access-Token not found in cookies"))?;
+            .ok_or_else(|| anyhow!("X-Access-Token not found in cookies"))?;
         Ok((dev_ref.to_string(), access_token.to_string()))
     }
 
@@ -120,23 +121,23 @@ impl Session {
         let csrf_token = html
             .select(
                 &Selector::parse("a[data-csrf_token]")
-                    .map_err(|_| anyhow::Error::msg("Cannot build CSRF token selector"))?,
+                    .map_err(|_| anyhow!("Cannot build CSRF token selector"))?,
             )
             .next()
-            .ok_or_else(|| anyhow::Error::msg("Could not find element with CSRF token"))?
+            .ok_or_else(|| anyhow!("Could not find element with CSRF token"))?
             .value()
             .attr("data-csrf_token")
-            .ok_or_else(|| anyhow::Error::msg("Could extract not CSRF token from element"))?;
+            .ok_or_else(|| anyhow!("Could extract not CSRF token from element"))?;
         let user_id = html
             .select(
                 &Selector::parse("a[data-user_id]")
-                    .map_err(|_| anyhow::Error::msg("Cannot build user ID selector"))?,
+                    .map_err(|_| anyhow!("Cannot build user ID selector"))?,
             )
             .next()
-            .ok_or_else(|| anyhow::Error::msg("Could not find element with user ID token"))?
+            .ok_or_else(|| anyhow!("Could not find element with user ID token"))?
             .value()
             .attr("data-user_id")
-            .ok_or_else(|| anyhow::Error::msg("Could not extract user ID token from element"))?;
+            .ok_or_else(|| anyhow!("Could not extract user ID token from element"))?;
         Ok((csrf_token.to_string(), user_id.to_string()))
     }
 
@@ -173,7 +174,7 @@ impl Session {
                 .json(&PatchData::new(deactivated, auth_data.csrf_token()))
                 .build()?)
         } else {
-            Err(anyhow::Error::msg("Not logged in"))
+            Err(anyhow!("Not logged in"))
         }
     }
 }
