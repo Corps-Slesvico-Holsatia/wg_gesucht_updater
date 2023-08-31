@@ -1,7 +1,6 @@
-use crate::session::USER_AGENT;
+use crate::session::{TIMEOUT, USER_AGENT};
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
-use std::time::Duration;
 
 const DESCRIPTION: &str = "Bump advertisements on wg-gesucht.de";
 
@@ -32,8 +31,8 @@ pub struct Settings {
     pub(crate) password: String,
     #[clap(short = 'a', long, default_value = USER_AGENT)]
     pub(crate) user_agent: String,
-    #[clap(short, long, value_parser = |secs: &str| secs.parse().map(Duration::from_secs), name = "SECS", default_value = "10")]
-    pub(crate) timeout: Duration,
+    #[clap(short, long, name = "SECS", default_value_t = TIMEOUT.as_secs())]
+    pub(crate) timeout: u64,
     #[clap(subcommand)]
     pub(crate) action: Action,
 }

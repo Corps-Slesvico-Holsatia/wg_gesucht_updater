@@ -20,11 +20,11 @@ The configuration file is expected to have the following format:
 ```toml
 user_name = "your@user.name"
 password = "yourSecretPassword"
-timeout = <seconds, default=10>
+timeout_sec = 10
 user_agent = "your_preferred_user_agent_string"
 bump = [ <id>, <id>, ... ]
 activate = [ <id>, <id>, ... ]
 deactivate = [ <id>, <id>, ... ]
 ```
-The fields `timeout` and `user_agent` are optional and have sensible defaults.  
+The fields `timeout_sec` and `user_agent` are optional and have sensible defaults.  
 The lists `bump`, `activate` and `deacticate` are optional as well and default to empty lists.

@@ -87,7 +87,7 @@ impl From<ConfigFile> for Client {
             user_name: config.user_name,
             password: config.password,
             user_agent: config.user_agent.unwrap_or_else(|| USER_AGENT.to_string()),
-            timeout: config.timeout.unwrap_or(TIMEOUT),
+            timeout: config.timeout_sec.map_or(TIMEOUT, Duration::from_secs),
             activate: config.activate.unwrap_or_default(),
             bump: config.bump.unwrap_or_default(),
             deactivate: config.deactivate.unwrap_or_default(),
@@ -101,7 +101,7 @@ impl From<Settings> for Client {
             user_name: settings.user_name,
             password: settings.password,
             user_agent: settings.user_agent,
-            timeout: settings.timeout,
+            timeout: Duration::from_secs(settings.timeout),
             activate: if let Action::Activate { offers } = &settings.action {
                 offers.clone()
             } else {
