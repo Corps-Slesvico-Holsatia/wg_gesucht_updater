@@ -43,8 +43,9 @@ impl Session {
     /// # Errors
     /// Returns an `[anyhow::Error]` on request errors
     pub async fn login(&mut self, user_name: &str, password: &str) -> anyhow::Result<()> {
-        self.auth_data = Some(self.get_auth_data(user_name, password).await?);
-        Ok(())
+        self.get_auth_data(user_name, password)
+            .await
+            .map(|auth_data| self.auth_data = Some(auth_data))
     }
 
     /// Update a single advertisement
