@@ -1,6 +1,15 @@
 # wg_gesucht_updater
 Advertisement bumper for wg-gesucht.de
 
+## Installation
+You need to have a [Rust](https://www.rust-lang.org/) toolchain installed.
+```commandline
+$ git clone https://github.com/Corps-Slesvico-Holsatia/wg_gesucht_updater.git
+$ cd wg_gesucht_updater
+$ cargo build --release
+```
+You'll find the built binary under `target/release/wg_gesucht_updater{,.exe}`.
+
 ## Usage
 The program has two operation modes:
 
