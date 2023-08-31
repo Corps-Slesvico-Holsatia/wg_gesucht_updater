@@ -9,7 +9,7 @@ async fn main() {
         exit(1);
     });
 
-    match Session::new(&settings.user_agent) {
+    match Session::new(&settings.user_agent, settings.timeout) {
         Ok(mut session) => {
             session
                 .login(&settings.user_name, &settings.password)

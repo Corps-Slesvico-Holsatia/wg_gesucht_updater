@@ -5,17 +5,20 @@ use anyhow::anyhow;
 use reqwest::{Client, Error, Request, Response, StatusCode};
 use scraper::{Html, Selector};
 use std::collections::HashMap;
+use std::time::Duration;
 
 const LOGIN_URL: &str = "https://www.wg-gesucht.de/ajax/sessions.php?action=login";
 const OFFERS_LIST_URL: &str = "https://www.wg-gesucht.de/meine-anzeigen.html";
 const OFFER_MODIFY_URL: &str = "https://www.wg-gesucht.de/api/offers";
+pub const TIMEOUT: Duration = Duration::from_secs(10);
 pub const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36";
 
 #[derive(Debug)]
 pub struct Session {
+    user_agent: String,
+    timeout: Duration,
     client: Client,
     auth_data: Option<AuthData>,
-    user_agent: String,
 }
 
 impl Session {
@@ -23,7 +26,7 @@ impl Session {
     ///
     /// # Errors
     /// Returns an `[reqwest::Error]` if the session client could not be constructed
-    pub fn new(user_agent: &str) -> Result<Self, Error> {
+    pub fn new(user_agent: &str, timeout: Duration) -> Result<Self, Error> {
         Client::builder()
             .cookie_store(true)
             .build()
@@ -31,6 +34,7 @@ impl Session {
                 client,
                 auth_data: None,
                 user_agent: user_agent.to_string(),
+                timeout,
             })
     }
 
@@ -111,6 +115,7 @@ impl Session {
                     self.client
                         .get(OFFERS_LIST_URL)
                         .header("User-Agent", &self.user_agent)
+                        .timeout(self.timeout)
                         .build()?,
                 )
                 .await?
@@ -156,6 +161,7 @@ impl Session {
             .post(LOGIN_URL)
             .json(&LoginData::new(user_name, password, true, "de"))
             .header("User-Agent", &self.user_agent)
+            .timeout(self.timeout)
             .build()
     }
 
@@ -172,6 +178,7 @@ impl Session {
                 .headers(auth_data.try_into()?)
                 .header("User-Agent", &self.user_agent)
                 .json(&PatchData::new(deactivated, auth_data.csrf_token()))
+                .timeout(self.timeout)
                 .build()?)
         } else {
             Err(anyhow!("Not logged in"))
@@ -181,6 +188,6 @@ impl Session {
 
 impl Default for Session {
     fn default() -> Self {
-        Self::new(USER_AGENT).expect("Could not build client")
+        Self::new(USER_AGENT, TIMEOUT).expect("Could not build client")
     }
 }

@@ -1,8 +1,10 @@
 use crate::config::Config;
-use crate::session::USER_AGENT;
+use crate::session::{TIMEOUT, USER_AGENT};
 use clap::{Parser, Subcommand};
 use serde_rw::FromFile;
+use std::num::ParseIntError;
 use std::path::PathBuf;
+use std::time::Duration;
 
 const DESCRIPTION: &str = "Bump advertisements on wg-gesucht.de";
 
@@ -45,6 +47,8 @@ pub struct Settings {
     pub password: String,
     #[clap(short = 'a', long, default_value = USER_AGENT)]
     pub user_agent: String,
+    #[clap(short, long, value_parser = parse_duration, name = "SECS", default_value = "10")]
+    pub timeout: Duration,
     #[clap(index = 1)]
     pub ad_ids: Vec<u32>,
 }
@@ -55,7 +59,12 @@ impl From<Config> for Settings {
             user_name: config.user_name,
             password: config.password,
             user_agent: config.user_agent.unwrap_or_else(|| USER_AGENT.to_string()),
+            timeout: config.timeout.unwrap_or(TIMEOUT),
             ad_ids: config.ad_ids,
         }
     }
+}
+
+fn parse_duration(secs: &str) -> Result<Duration, ParseIntError> {
+    Ok(Duration::from_secs(secs.parse()?))
 }
