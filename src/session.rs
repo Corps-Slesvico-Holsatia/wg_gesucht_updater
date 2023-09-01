@@ -209,8 +209,8 @@ impl Session {
         }
     }
 
-    fn scrape_csrf_token_and_user_id<'slf: 'html, 'html>(
-        &'slf self,
+    fn scrape_csrf_token_and_user_id<'html>(
+        &self,
         html: &'html Html,
     ) -> anyhow::Result<(&'html str, &'html str)> {
         Ok((
