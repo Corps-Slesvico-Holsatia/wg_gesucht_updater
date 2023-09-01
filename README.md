@@ -1,5 +1,5 @@
 # wg_gesucht_updater
-Advertisement bumper for wg-gesucht.de
+Shared flat offers bumper for wg-gesucht.de
 
 ## Installation
 You need to have a [Rust](https://www.rust-lang.org/) toolchain installed.
