@@ -20,6 +20,8 @@ pub struct Session {
     user_agent: String,
     client: Client,
     auth_data: Option<AuthData>,
+    csrf_token_selector: Selector,
+    user_id_selector: Selector,
 }
 
 impl Session {
@@ -30,17 +32,18 @@ impl Session {
     /// * `user_agent` - The HTTP user agent to send with the requests
     ///
     /// # Errors
-    /// Returns an `[reqwest::Error]` if the session client could not be constructed
-    pub fn new(timeout: Duration, user_agent: &str) -> Result<Self, Error> {
-        Client::builder()
-            .cookie_store(true)
-            .build()
-            .map(|client| Self {
-                timeout,
-                user_agent: user_agent.to_string(),
-                client,
-                auth_data: None,
-            })
+    /// Returns an `[anyhow::Error]` if the session client could not be constructed
+    pub fn new(timeout: Duration, user_agent: &str) -> anyhow::Result<Self> {
+        Ok(Self {
+            client: Client::builder().cookie_store(true).build()?,
+            timeout,
+            user_agent: user_agent.to_string(),
+            auth_data: None,
+            csrf_token_selector: Selector::parse("a[data-csrf_token]")
+                .map_err(|error| anyhow!(error.to_string()))?,
+            user_id_selector: Selector::parse("a[data-user_id]")
+                .map_err(|error| anyhow!(error.to_string()))?,
+        })
     }
 
     /// Initiate API session
@@ -154,7 +157,7 @@ impl Session {
                 .await?
                 .to_vec(),
         )?);
-        let (csrf_token, user_id) = scrape_csrf_token_and_user_id(&html)?;
+        let (csrf_token, user_id) = self.scrape_csrf_token_and_user_id(&html)?;
         Ok((csrf_token.to_string(), user_id.to_string()))
     }
 
@@ -205,6 +208,26 @@ impl Session {
             Err(anyhow!("Not logged in"))
         }
     }
+
+    fn scrape_csrf_token_and_user_id<'slf: 'html, 'html>(
+        &'slf self,
+        html: &'html Html,
+    ) -> anyhow::Result<(&'html str, &'html str)> {
+        Ok((
+            html.select(&self.csrf_token_selector)
+                .next()
+                .ok_or_else(|| anyhow!("Could not find element with CSRF token"))?
+                .value()
+                .attr("data-csrf_token")
+                .ok_or_else(|| anyhow!("Could extract not CSRF token from element"))?,
+            html.select(&self.user_id_selector)
+                .next()
+                .ok_or_else(|| anyhow!("Could not find element with user ID"))?
+                .value()
+                .attr("data-user_id")
+                .ok_or_else(|| anyhow!("Could not extract user ID from element"))?,
+        ))
+    }
 }
 
 impl Default for Session {
@@ -223,28 +246,5 @@ fn scrape_dev_ref_and_access_token(
         cookies
             .get("X-Access-Token")
             .ok_or_else(|| anyhow!("X-Access-Token not found in cookies"))?,
-    ))
-}
-
-fn scrape_csrf_token_and_user_id(html: &Html) -> anyhow::Result<(&str, &str)> {
-    Ok((
-        html.select(
-            &Selector::parse("a[data-csrf_token]")
-                .map_err(|_| anyhow!("Cannot build CSRF token selector"))?,
-        )
-        .next()
-        .ok_or_else(|| anyhow!("Could not find element with CSRF token"))?
-        .value()
-        .attr("data-csrf_token")
-        .ok_or_else(|| anyhow!("Could extract not CSRF token from element"))?,
-        html.select(
-            &Selector::parse("a[data-user_id]")
-                .map_err(|_| anyhow!("Cannot build user ID selector"))?,
-        )
-        .next()
-        .ok_or_else(|| anyhow!("Could not find element with user ID"))?
-        .value()
-        .attr("data-user_id")
-        .ok_or_else(|| anyhow!("Could not extract user ID from element"))?,
     ))
 }
