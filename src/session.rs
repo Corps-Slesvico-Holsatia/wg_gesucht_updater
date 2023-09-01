@@ -232,7 +232,7 @@ impl Session {
 
 impl Default for Session {
     fn default() -> Self {
-        Self::new(TIMEOUT, USER_AGENT).expect("Could not build client")
+        Self::new(TIMEOUT, USER_AGENT).expect("Could not create session")
     }
 }
 
