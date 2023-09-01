@@ -36,4 +36,4 @@ activate = [ <id>, <id>, ... ]
 deactivate = [ <id>, <id>, ... ]
 ```
 The fields `timeout_sec` and `user_agent` are optional and have sensible defaults.  
-The lists `bump`, `activate` and `deacticate` are optional as well and default to empty lists.
+The lists `bump`, `activate` and `deactivate` are optional as well and default to empty lists.
