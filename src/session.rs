@@ -189,7 +189,7 @@ impl Session {
     }
 
     fn build_patch_request(&self, id: u32, deactivated: bool) -> anyhow::Result<Request> {
-        self.auth_data.map_or_else(
+        self.auth_data.as_ref().map_or_else(
             || Err(anyhow!("Not logged in")),
             |auth_data| {
                 Ok(self
