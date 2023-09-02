@@ -9,8 +9,8 @@ async fn main() {
         exit(1);
     });
 
-    if (client.run().await).is_err() {
-        exit(3);
+    if let Err(errors) = client.run().await {
+        exit(i32::try_from(errors.len()).unwrap_or(i32::MAX));
     }
 
     exit(0);
