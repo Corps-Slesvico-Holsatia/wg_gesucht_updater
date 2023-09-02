@@ -26,8 +26,7 @@ impl Client {
 
     /// Run the client as per its settings
     ///
-    /// This function will exit the program with an appropriate
-    /// exit code when all operations are done or errors occurred.
+    /// This function will return an exit code, indicating whether error have occurred.
     pub async fn run(&mut self) -> i32 {
         if let Err(error) = self
             .session
