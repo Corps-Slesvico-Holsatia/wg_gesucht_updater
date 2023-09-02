@@ -189,23 +189,24 @@ impl Session {
     }
 
     fn build_patch_request(&self, id: u32, deactivated: bool) -> anyhow::Result<Request> {
-        if let Some(ref auth_data) = self.auth_data {
-            Ok(self
-                .client
-                .patch(format!(
-                    "{}/{}/users/{}",
-                    OFFER_MODIFY_URL,
-                    id,
-                    auth_data.user_id()
-                ))
-                .headers(auth_data.try_into()?)
-                .header("User-Agent", &self.user_agent)
-                .json(&PatchData::new(deactivated, auth_data.csrf_token()))
-                .timeout(self.timeout)
-                .build()?)
-        } else {
-            Err(anyhow!("Not logged in"))
-        }
+        self.auth_data.map_or_else(
+            || Err(anyhow!("Not logged in")),
+            |auth_data| {
+                Ok(self
+                    .client
+                    .patch(format!(
+                        "{}/{}/users/{}",
+                        OFFER_MODIFY_URL,
+                        id,
+                        auth_data.user_id()
+                    ))
+                    .headers(auth_data.try_into()?)
+                    .header("User-Agent", &self.user_agent)
+                    .json(&PatchData::new(deactivated, auth_data.csrf_token()))
+                    .timeout(self.timeout)
+                    .build()?)
+            },
+        )
     }
 
     fn scrape_csrf_token_and_user_id<'html>(
