@@ -171,13 +171,12 @@ impl Session {
             .await
     }
 
-    fn build_offer_list_request(&self) -> anyhow::Result<Request> {
-        Ok(self
-            .client
+    fn build_offer_list_request(&self) -> reqwest::Result<Request> {
+        self.client
             .get(OFFERS_LIST_URL)
             .header("User-Agent", &self.user_agent)
             .timeout(self.timeout)
-            .build()?)
+            .build()
     }
 
     fn build_login_request(&self, user_name: &str, password: &str) -> reqwest::Result<Request> {
