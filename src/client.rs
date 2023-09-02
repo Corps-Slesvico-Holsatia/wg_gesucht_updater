@@ -16,7 +16,7 @@ impl Client {
     /// Upon creation, create a new session to use for API requests.
     ///
     /// # Errors
-    /// Returns an `[anyhow::Error]` if a session could not be created.
+    /// Returns an `[Vec<anyhow::Error>]` if a session could not be created.
     pub fn new(settings: Settings) -> anyhow::Result<Self> {
         Ok(Self {
             session: Session::new(settings.timeout, &settings.user_agent)?,
@@ -26,51 +26,56 @@ impl Client {
 
     /// Run the client as per its settings
     ///
-    /// This function will return an exit code, indicating whether error have occurred.
-    #[must_use]
-    pub async fn run(&mut self) -> i32 {
+    /// # Errors
+    /// Returns an `[anyhow::Error]` if any errors occurred.
+    pub async fn run(&mut self) -> Result<(), Vec<anyhow::Error>> {
         if let Err(error) = self
             .session
             .login(&self.settings.user_name, &self.settings.password)
             .await
         {
             eprintln!("{error}");
-            return 2;
+            return Err(vec![error]);
         }
 
-        let mut exit_code = 0;
-        self.deactivate_offers(&mut exit_code).await;
-        self.activate_offers(&mut exit_code).await;
-        self.bump_offers(&mut exit_code).await;
-        exit_code
+        let mut errors = Vec::new();
+        self.deactivate_offers(&mut errors).await;
+        self.activate_offers(&mut errors).await;
+        self.bump_offers(&mut errors).await;
+
+        if errors.is_empty() {
+            Ok(())
+        } else {
+            Err(errors)
+        }
     }
 
-    async fn activate_offers(&mut self, exit_code: &mut i32) {
+    async fn activate_offers(&mut self, errors: &mut Vec<anyhow::Error>) {
         for &id in &self.settings.activate {
             println!("Activating offer: {id}");
             self.session.activate(id).await.unwrap_or_else(|error| {
                 eprintln!("Could not activate offer {id}: {error}");
-                *exit_code += 1;
+                errors.push(error);
             });
         }
     }
 
-    async fn bump_offers(&mut self, exit_code: &mut i32) {
+    async fn bump_offers(&mut self, errors: &mut Vec<anyhow::Error>) {
         for &id in &self.settings.bump {
             println!("Bumping offer: {id}");
             self.session.bump(id).await.unwrap_or_else(|error| {
                 eprintln!("Could not bump offer {id}: {error}");
-                *exit_code += 1;
+                errors.push(error);
             });
         }
     }
 
-    async fn deactivate_offers(&mut self, exit_code: &mut i32) {
+    async fn deactivate_offers(&mut self, errors: &mut Vec<anyhow::Error>) {
         for &id in &self.settings.deactivate {
             println!("Deactivating offer: {id}");
             self.session.deactivate(id).await.unwrap_or_else(|error| {
                 eprintln!("Could not deactivate offer {id}: {error}");
-                *exit_code += 1;
+                errors.push(error);
             });
         }
     }

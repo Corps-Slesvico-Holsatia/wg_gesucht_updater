@@ -8,5 +8,10 @@ async fn main() {
         eprintln!("Could not parse config file: {error}");
         exit(1);
     });
-    exit(client.run().await);
+
+    if (client.run().await).is_err() {
+        exit(3);
+    }
+
+    exit(0);
 }
