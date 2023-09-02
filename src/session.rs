@@ -138,27 +138,27 @@ impl Session {
         user_name: &str,
         password: &str,
     ) -> anyhow::Result<(String, String)> {
-        let cookies: HashMap<_, _> = self
-            .execute_login_request(user_name, password)
-            .await?
-            .cookies()
-            .map(|cookie| (cookie.name().to_string(), cookie.value().to_string()))
-            .collect();
-        let (dev_ref, access_token) = scrape_dev_ref_and_access_token(&cookies)?;
-        Ok((dev_ref.to_string(), access_token.to_string()))
+        scrape_dev_ref_and_access_token(
+            &self
+                .execute_login_request(user_name, password)
+                .await?
+                .cookies()
+                .map(|cookie| (cookie.name().to_string(), cookie.value().to_string()))
+                .collect::<HashMap<_, _>>(),
+        )
+        .map(|(dev_ref, access_token)| (dev_ref.to_string(), access_token.to_string()))
     }
 
     async fn get_csrf_token_and_user_id(&mut self) -> anyhow::Result<(String, String)> {
-        let html = Html::parse_document(&String::from_utf8(
+        self.scrape_csrf_token_and_user_id(&Html::parse_document(&String::from_utf8(
             self.client
                 .execute(self.build_offer_list_request()?)
                 .await?
                 .bytes()
                 .await?
                 .to_vec(),
-        )?);
-        let (csrf_token, user_id) = self.scrape_csrf_token_and_user_id(&html)?;
-        Ok((csrf_token.to_string(), user_id.to_string()))
+        )?))
+        .map(|(csrf_token, user_id)| (csrf_token.to_string(), user_id.to_string()))
     }
 
     async fn execute_login_request(
