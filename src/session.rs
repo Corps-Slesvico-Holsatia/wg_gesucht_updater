@@ -2,6 +2,7 @@ use crate::auth_data::AuthData;
 use crate::login_data::LoginData;
 use crate::patch_data::PatchData;
 use anyhow::anyhow;
+use once_cell::sync::Lazy;
 use reqwest::{Client, Error, Request, Response, StatusCode};
 use scraper::{Html, Selector};
 use std::collections::HashMap;
@@ -12,6 +13,12 @@ const OFFERS_LIST_URL: &str = "https://www.wg-gesucht.de/meine-anzeigen.html";
 const OFFER_MODIFY_URL: &str = "https://www.wg-gesucht.de/api/offers";
 pub const TIMEOUT: Duration = Duration::from_secs(10);
 pub const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36";
+static CSRF_TOKEN_SELECTOR: Lazy<Selector> = Lazy::new(|| {
+    Selector::parse("a[data-csrf_token]").expect("Could not create CSRF token selector")
+});
+static USER_ID_SELECTOR: Lazy<Selector> = Lazy::new(|| {
+    Selector::parse("a[data-user_id]").expect("Could not create user ID token selector")
+});
 
 /// Session with the wg-gesucht web API
 #[derive(Debug)]
@@ -20,8 +27,6 @@ pub struct Session {
     user_agent: String,
     client: Client,
     auth_data: Option<AuthData>,
-    csrf_token_selector: Selector,
-    user_id_selector: Selector,
 }
 
 impl Session {
@@ -39,10 +44,6 @@ impl Session {
             timeout,
             user_agent: user_agent.to_string(),
             auth_data: None,
-            csrf_token_selector: Selector::parse("a[data-csrf_token]")
-                .map_err(|error| anyhow!(error.to_string()))?,
-            user_id_selector: Selector::parse("a[data-user_id]")
-                .map_err(|error| anyhow!(error.to_string()))?,
         })
     }
 
@@ -214,13 +215,13 @@ impl Session {
         html: &'html Html,
     ) -> anyhow::Result<(&'html str, &'html str)> {
         Ok((
-            html.select(&self.csrf_token_selector)
+            html.select(&CSRF_TOKEN_SELECTOR)
                 .next()
                 .ok_or_else(|| anyhow!("Could not find element with CSRF token"))?
                 .value()
                 .attr("data-csrf_token")
                 .ok_or_else(|| anyhow!("Could extract not CSRF token from element"))?,
-            html.select(&self.user_id_selector)
+            html.select(&USER_ID_SELECTOR)
                 .next()
                 .ok_or_else(|| anyhow!("Could not find element with user ID"))?
                 .value()
