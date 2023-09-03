@@ -16,9 +16,8 @@ pub const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWeb
 static CSRF_TOKEN_SELECTOR: Lazy<Selector> = Lazy::new(|| {
     Selector::parse("a[data-csrf_token]").expect("Could not create CSRF token selector")
 });
-static USER_ID_SELECTOR: Lazy<Selector> = Lazy::new(|| {
-    Selector::parse("a[data-user_id]").expect("Could not create user ID token selector")
-});
+static USER_ID_SELECTOR: Lazy<Selector> =
+    Lazy::new(|| Selector::parse("a[data-user_id]").expect("Could not create user ID selector"));
 
 /// Session with the wg-gesucht web API
 #[derive(Debug)]
