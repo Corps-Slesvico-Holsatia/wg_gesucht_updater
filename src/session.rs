@@ -150,7 +150,7 @@ impl Session {
     }
 
     async fn get_csrf_token_and_user_id(&mut self) -> anyhow::Result<(String, String)> {
-        self.scrape_csrf_token_and_user_id(&Html::parse_document(&String::from_utf8(
+        scrape_csrf_token_and_user_id(&Html::parse_document(&String::from_utf8(
             self.client
                 .execute(self.build_offer_list_request()?)
                 .await?
@@ -208,26 +208,6 @@ impl Session {
             },
         )
     }
-
-    fn scrape_csrf_token_and_user_id<'html>(
-        &self,
-        html: &'html Html,
-    ) -> anyhow::Result<(&'html str, &'html str)> {
-        Ok((
-            html.select(&CSRF_TOKEN_SELECTOR)
-                .next()
-                .ok_or_else(|| anyhow!("Could not find element with CSRF token"))?
-                .value()
-                .attr("data-csrf_token")
-                .ok_or_else(|| anyhow!("Could extract not CSRF token from element"))?,
-            html.select(&USER_ID_SELECTOR)
-                .next()
-                .ok_or_else(|| anyhow!("Could not find element with user ID"))?
-                .value()
-                .attr("data-user_id")
-                .ok_or_else(|| anyhow!("Could not extract user ID from element"))?,
-        ))
-    }
 }
 
 impl Default for Session {
@@ -246,5 +226,22 @@ fn scrape_dev_ref_and_access_token(
         cookies
             .get("X-Access-Token")
             .ok_or_else(|| anyhow!("X-Access-Token not found in cookies"))?,
+    ))
+}
+
+fn scrape_csrf_token_and_user_id(html: &Html) -> anyhow::Result<(&str, &str)> {
+    Ok((
+        html.select(&CSRF_TOKEN_SELECTOR)
+            .next()
+            .ok_or_else(|| anyhow!("Could not find element with CSRF token"))?
+            .value()
+            .attr("data-csrf_token")
+            .ok_or_else(|| anyhow!("Could extract not CSRF token from element"))?,
+        html.select(&USER_ID_SELECTOR)
+            .next()
+            .ok_or_else(|| anyhow!("Could not find element with user ID"))?
+            .value()
+            .attr("data-user_id")
+            .ok_or_else(|| anyhow!("Could not extract user ID from element"))?,
     ))
 }
