@@ -55,3 +55,13 @@ pub enum Action {
         offers: Vec<u32>,
     },
 }
+
+impl From<Action> for (Vec<u32>, Vec<u32>, Vec<u32>) {
+    fn from(action: Action) -> Self {
+        match action {
+            Action::Activate { offers } => (offers, Vec::with_capacity(0), Vec::with_capacity(0)),
+            Action::Bump { offers } => (Vec::with_capacity(0), offers, Vec::with_capacity(0)),
+            Action::Deactivate { offers } => (Vec::with_capacity(0), Vec::with_capacity(0), offers),
+        }
+    }
+}
