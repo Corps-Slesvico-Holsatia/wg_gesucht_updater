@@ -36,7 +36,7 @@ impl Session {
     /// * `user_agent` - The HTTP user agent to send with the requests
     ///
     /// # Errors
-    /// Returns an `[anyhow::Error]` if the session client could not be constructed
+    /// Returns an [`anyhow::Error`] if the session client could not be constructed
     pub fn new(timeout: Duration, user_agent: &str) -> anyhow::Result<Self> {
         Ok(Self {
             client: Client::builder().cookie_store(true).build()?,
@@ -56,7 +56,7 @@ impl Session {
     /// * `password` - The passwort associated with above user name
     ///
     /// # Errors
-    /// Returns an `[anyhow::Error]` on request errors
+    /// Returns an [`anyhow::Error`] on request errors
     pub async fn login(&mut self, user_name: &str, password: &str) -> anyhow::Result<()> {
         self.get_auth_data(user_name, password)
             .await
@@ -71,7 +71,7 @@ impl Session {
     /// * `id` - The offer ID (also referred to as "ad id")
     ///
     /// # Errors
-    /// Returns an `[anyhow::Error]` on request errors
+    /// Returns an [`anyhow::Error`] on request errors
     pub async fn bump(&mut self, id: u32) -> anyhow::Result<()> {
         self.deactivate(id).await?;
         self.activate(id).await
@@ -83,7 +83,7 @@ impl Session {
     /// * `id` - The offer ID (also referred to as "ad id")
     ///
     /// # Errors
-    /// Returns an `[anyhow::Error]` on request errors
+    /// Returns an [`anyhow::Error`] on request errors
     pub async fn deactivate(&mut self, id: u32) -> anyhow::Result<()> {
         if self
             .client
@@ -104,7 +104,7 @@ impl Session {
     /// * `id` - The offer ID (also referred to as "ad id").
     ///
     /// # Errors
-    /// Returns an `[anyhow::Error]` on request errors
+    /// Returns an [`anyhow::Error`] on request errors
     pub async fn activate(&mut self, id: u32) -> anyhow::Result<()> {
         if self
             .client

@@ -16,7 +16,7 @@ impl Client {
     /// Upon creation, create a new session to use for API requests.
     ///
     /// # Errors
-    /// Returns an `[anyhow::Error]` if a session could not be created.
+    /// Returns an [`anyhow::Error`] if a session could not be created.
     pub fn new(settings: Settings) -> anyhow::Result<Self> {
         Ok(Self {
             session: Session::new(settings.timeout, &settings.user_agent)?,
@@ -27,7 +27,7 @@ impl Client {
     /// Run the client as per its settings
     ///
     /// # Errors
-    /// Returns an `[[Vec<anyhow::Error>]` containing any errors that occurred.
+    /// Returns an [`Vec<anyhow::Error>`] containing any errors that occurred.
     pub async fn run(&mut self) -> Result<(), Vec<anyhow::Error>> {
         if let Err(error) = self
             .session
