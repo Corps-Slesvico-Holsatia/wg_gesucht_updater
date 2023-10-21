@@ -1,5 +1,6 @@
 use crate::settings::Settings;
 use crate::{Args, Session};
+use log::{error, info};
 
 /// Client to operate on offers at wg-gesucht.de
 ///
@@ -34,7 +35,7 @@ impl Client {
             .login(&self.settings.user_name, &self.settings.password)
             .await
         {
-            eprintln!("{error}");
+            error!("{error}");
             return Err(vec![error]);
         }
 
@@ -52,9 +53,9 @@ impl Client {
 
     async fn activate_offers(&mut self, errors: &mut Vec<anyhow::Error>) {
         for &id in &self.settings.activate {
-            println!("Activating offer: {id}");
+            info!("Activating offer: {id}");
             self.session.activate(id).await.unwrap_or_else(|error| {
-                eprintln!("Could not activate offer {id}: {error}");
+                error!("Could not activate offer {id}: {error}");
                 errors.push(error);
             });
         }
@@ -62,9 +63,9 @@ impl Client {
 
     async fn bump_offers(&mut self, errors: &mut Vec<anyhow::Error>) {
         for &id in &self.settings.bump {
-            println!("Bumping offer: {id}");
+            info!("Bumping offer: {id}");
             self.session.bump(id).await.unwrap_or_else(|error| {
-                eprintln!("Could not bump offer {id}: {error}");
+                error!("Could not bump offer {id}: {error}");
                 errors.push(error);
             });
         }
@@ -72,9 +73,9 @@ impl Client {
 
     async fn deactivate_offers(&mut self, errors: &mut Vec<anyhow::Error>) {
         for &id in &self.settings.deactivate {
-            println!("Deactivating offer: {id}");
+            info!("Deactivating offer: {id}");
             self.session.deactivate(id).await.unwrap_or_else(|error| {
-                eprintln!("Could not deactivate offer {id}: {error}");
+                error!("Could not deactivate offer {id}: {error}");
                 errors.push(error);
             });
         }

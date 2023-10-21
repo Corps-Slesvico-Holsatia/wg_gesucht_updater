@@ -1,11 +1,14 @@
 use clap::Parser;
+use log::error;
 use std::process::exit;
 use wg_gesucht_updater::{Args, Client};
 
 #[tokio::main]
 async fn main() {
+    env_logger::init();
+
     let mut client: Client = Args::parse().try_into().unwrap_or_else(|error| {
-        eprintln!("Could not parse config file: {error}");
+        error!("Could not parse config file: {error}");
         exit(1);
     });
 
