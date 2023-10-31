@@ -90,7 +90,7 @@ impl Session {
             .execute(self.build_patch_request(id, true)?)
             .await?
             .status()
-            != StatusCode::from_u16(200)?
+            != StatusCode::OK
         {
             return Err(anyhow!("Could not deactivate ad"));
         }
@@ -111,7 +111,7 @@ impl Session {
             .execute(self.build_patch_request(id, false)?)
             .await?
             .status()
-            != StatusCode::from_u16(200)?
+            != StatusCode::OK
         {
             return Err(anyhow!("Could not activate ad"));
         }
