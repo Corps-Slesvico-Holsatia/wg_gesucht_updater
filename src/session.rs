@@ -140,7 +140,7 @@ impl Session {
     ) -> anyhow::Result<(String, String)> {
         let response = self.execute_login_request(user_name, password).await?;
 
-        if response.status().as_u16() != 200 {
+        if !response.status().is_success() {
             return Err(anyhow!("Invalid credentials"));
         }
 
