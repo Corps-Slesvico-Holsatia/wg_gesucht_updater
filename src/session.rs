@@ -3,7 +3,7 @@ use crate::login_data::LoginData;
 use crate::patch_data::PatchData;
 use anyhow::anyhow;
 use once_cell::sync::Lazy;
-use reqwest::{Client, Error, Request, Response, StatusCode};
+use reqwest::{Client, Request, Response, StatusCode};
 use scraper::{Html, Selector};
 use std::collections::HashMap;
 use std::time::Duration;
@@ -138,14 +138,10 @@ impl Session {
         user_name: &str,
         password: &str,
     ) -> anyhow::Result<(String, String)> {
-        let response = self.execute_login_request(user_name, password).await?;
-
-        if !response.status().is_success() {
-            return Err(anyhow!("Invalid credentials"));
-        }
-
         scrape_dev_ref_and_access_token(
-            &response
+            &self
+                .execute_login_request(user_name, password)
+                .await?
                 .cookies()
                 .map(|cookie| (cookie.name().to_string(), cookie.value().to_string()))
                 .collect::<HashMap<_, _>>(),
@@ -169,10 +165,18 @@ impl Session {
         &mut self,
         user_name: &str,
         password: &str,
-    ) -> Result<Response, Error> {
+    ) -> anyhow::Result<Response> {
         self.client
             .execute(self.build_login_request(user_name, password)?)
             .await
+            .map_err(Into::into)
+            .and_then(|response| {
+                if response.status().is_success() {
+                    Ok(response)
+                } else {
+                    Err(anyhow!("Invalid credentials"))
+                }
+            })
     }
 
     fn build_offer_list_request(&self) -> reqwest::Result<Request> {
