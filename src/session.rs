@@ -2,6 +2,7 @@ use crate::auth_data::AuthData;
 use crate::login_data::LoginData;
 use crate::patch_data::PatchData;
 use anyhow::anyhow;
+use log::debug;
 use once_cell::sync::Lazy;
 use reqwest::{Client, Error, Request, Response, StatusCode};
 use scraper::{Html, Selector};
@@ -219,6 +220,7 @@ impl Default for Session {
 fn scrape_dev_ref_and_access_token(
     cookies: &HashMap<String, String>,
 ) -> anyhow::Result<(&str, &str)> {
+    debug!("Cookies: {cookies:?}");
     Ok((
         cookies
             .get("X-Dev-Ref-No")
