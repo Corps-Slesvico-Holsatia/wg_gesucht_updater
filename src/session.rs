@@ -138,10 +138,14 @@ impl Session {
         user_name: &str,
         password: &str,
     ) -> anyhow::Result<(String, String)> {
+        let response = self.execute_login_request(user_name, password).await?;
+
+        if response.status().as_u16() != 200 {
+            return Err(anyhow!("Invalid credentials"));
+        }
+
         scrape_dev_ref_and_access_token(
-            &self
-                .execute_login_request(user_name, password)
-                .await?
+            &response
                 .cookies()
                 .map(|cookie| (cookie.name().to_string(), cookie.value().to_string()))
                 .collect::<HashMap<_, _>>(),
