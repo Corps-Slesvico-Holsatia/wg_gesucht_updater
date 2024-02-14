@@ -2,8 +2,9 @@ use crate::auth_data::AuthData;
 use crate::login_data::LoginData;
 use crate::patch_data::PatchData;
 use anyhow::anyhow;
+use log::debug;
 use once_cell::sync::Lazy;
-use reqwest::{Client, Request, Response};
+use reqwest::{Client, Error, Request, Response};
 use scraper::{Html, Selector};
 use std::collections::HashMap;
 use std::time::Duration;
@@ -150,14 +151,16 @@ impl Session {
     }
 
     async fn get_csrf_token_and_user_id(&mut self) -> anyhow::Result<(String, String)> {
-        scrape_csrf_token_and_user_id(&Html::parse_document(&String::from_utf8(
-            self.client
-                .execute(self.build_offer_list_request()?)
-                .await?
-                .bytes()
-                .await?
-                .to_vec(),
-        )?))
+        scrape_csrf_token_and_user_id(&Html::parse_document(&String::from_utf8(match self
+            .execute(self.build_offer_list_request()?)
+            .await?
+        {
+            Ok(response) => Ok(response.bytes().await?.to_vec()),
+            Err(response) => {
+                debug!("{response:?}");
+                Err(anyhow!("Could not retrieve CRSF token and user ID"))
+            }
+        }?)?))
         .map(|(csrf_token, user_id)| (csrf_token.to_string(), user_id.to_string()))
     }
 
@@ -166,17 +169,22 @@ impl Session {
         user_name: &str,
         password: &str,
     ) -> anyhow::Result<Response> {
-        self.client
-            .execute(self.build_login_request(user_name, password)?)
-            .await
-            .map_err(Into::into)
-            .and_then(|response| {
-                if response.status().is_success() {
-                    Ok(response)
-                } else {
-                    Err(anyhow!("Invalid credentials"))
-                }
+        self.execute(self.build_login_request(user_name, password)?)
+            .await?
+            .map_err(|response| {
+                debug!("{response:?}");
+                anyhow!("Invalid credentials")
             })
+    }
+
+    async fn execute(&mut self, request: Request) -> Result<Result<Response, Response>, Error> {
+        let response = self.client.execute(request).await?;
+
+        if response.status().is_success() {
+            Ok(Ok(response))
+        } else {
+            Ok(Err(response))
+        }
     }
 
     fn build_offer_list_request(&self) -> reqwest::Result<Request> {
