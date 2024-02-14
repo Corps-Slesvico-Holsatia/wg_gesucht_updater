@@ -3,7 +3,7 @@ use crate::login_data::LoginData;
 use crate::patch_data::PatchData;
 use anyhow::anyhow;
 use once_cell::sync::Lazy;
-use reqwest::{Client, Request, Response, StatusCode};
+use reqwest::{Client, Request, Response};
 use scraper::{Html, Selector};
 use std::collections::HashMap;
 use std::time::Duration;
@@ -90,12 +90,12 @@ impl Session {
             .execute(self.build_patch_request(id, true)?)
             .await?
             .status()
-            != StatusCode::OK
+            .is_success()
         {
-            return Err(anyhow!("Could not deactivate ad"));
+            return Ok(());
         }
 
-        Ok(())
+        Err(anyhow!("Could not deactivate ad"))
     }
 
     /// Activate an offer
@@ -111,12 +111,12 @@ impl Session {
             .execute(self.build_patch_request(id, false)?)
             .await?
             .status()
-            != StatusCode::OK
+            .is_success()
         {
-            return Err(anyhow!("Could not activate ad"));
+            return Ok(());
         }
 
-        Ok(())
+        Err(anyhow!("Could not activate ad"))
     }
 
     async fn get_auth_data(&mut self, user_name: &str, password: &str) -> anyhow::Result<AuthData> {
