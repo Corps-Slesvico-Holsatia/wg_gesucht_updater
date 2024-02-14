@@ -12,6 +12,7 @@ use std::time::Duration;
 const LOGIN_URL: &str = "https://www.wg-gesucht.de/ajax/sessions.php?action=login";
 const OFFERS_LIST_URL: &str = "https://www.wg-gesucht.de/meine-anzeigen.html";
 const OFFER_MODIFY_URL: &str = "https://www.wg-gesucht.de/api/offers";
+const CLIENT_ID: &str = "wg_desktop_website";
 pub const TIMEOUT: Duration = Duration::from_secs(10);
 pub const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36";
 static CSRF_TOKEN_SELECTOR: Lazy<Selector> = Lazy::new(|| {
@@ -127,7 +128,7 @@ impl Session {
         let (csrf_token, user_id) = self.get_csrf_token_and_user_id().await?;
         Ok(AuthData::new(
             user_id,
-            "wg_desktop_website".to_string(),
+            CLIENT_ID.to_string(),
             access_token,
             dev_ref,
             csrf_token,
