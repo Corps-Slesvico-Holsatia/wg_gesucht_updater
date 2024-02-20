@@ -54,30 +54,33 @@ impl Client {
     async fn activate_offers(&mut self, errors: &mut Vec<anyhow::Error>) {
         for &id in &self.settings.activate {
             info!("Activating offer: {id}");
-            self.session.activate(id).await.unwrap_or_else(|error| {
+
+            if let Err(error) = self.session.activate(id).await {
                 error!("Could not activate offer {id}: {error}");
                 errors.push(error);
-            });
+            };
         }
     }
 
     async fn bump_offers(&mut self, errors: &mut Vec<anyhow::Error>) {
         for &id in &self.settings.bump {
             info!("Bumping offer: {id}");
-            self.session.bump(id).await.unwrap_or_else(|error| {
+
+            if let Err(error) = self.session.bump(id).await {
                 error!("Could not bump offer {id}: {error}");
                 errors.push(error);
-            });
+            };
         }
     }
 
     async fn deactivate_offers(&mut self, errors: &mut Vec<anyhow::Error>) {
         for &id in &self.settings.deactivate {
             info!("Deactivating offer: {id}");
-            self.session.deactivate(id).await.unwrap_or_else(|error| {
+
+            if let Err(error) = self.session.deactivate(id).await {
                 error!("Could not deactivate offer {id}: {error}");
                 errors.push(error);
-            });
+            };
         }
     }
 }

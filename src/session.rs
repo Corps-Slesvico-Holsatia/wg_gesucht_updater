@@ -73,7 +73,7 @@ impl Session {
     ///
     /// # Errors
     /// Returns an [`anyhow::Error`] on request errors
-    pub async fn bump(&mut self, id: u32) -> anyhow::Result<()> {
+    pub async fn bump(&mut self, id: u32) -> anyhow::Result<Response> {
         self.deactivate(id).await?;
         self.activate(id).await
     }
@@ -85,18 +85,12 @@ impl Session {
     ///
     /// # Errors
     /// Returns an [`anyhow::Error`] on request errors
-    pub async fn deactivate(&mut self, id: u32) -> anyhow::Result<()> {
-        if self
+    pub async fn deactivate(&mut self, id: u32) -> anyhow::Result<Response> {
+        Ok(self
             .client
             .execute(self.build_patch_request(id, true)?)
             .await?
-            .status()
-            .is_success()
-        {
-            return Ok(());
-        }
-
-        Err(anyhow!("Could not deactivate ad"))
+            .error_for_status()?)
     }
 
     /// Activate an offer
@@ -106,18 +100,12 @@ impl Session {
     ///
     /// # Errors
     /// Returns an [`anyhow::Error`] on request errors
-    pub async fn activate(&mut self, id: u32) -> anyhow::Result<()> {
-        if self
+    pub async fn activate(&mut self, id: u32) -> anyhow::Result<Response> {
+        Ok(self
             .client
             .execute(self.build_patch_request(id, false)?)
             .await?
-            .status()
-            .is_success()
-        {
-            return Ok(());
-        }
-
-        Err(anyhow!("Could not activate ad"))
+            .error_for_status()?)
     }
 
     async fn get_auth_data(&mut self, user_name: &str, password: &str) -> anyhow::Result<AuthData> {
