@@ -7,12 +7,14 @@ use wg_gesucht_updater::{Args, Client};
 async fn main() {
     env_logger::builder().format_timestamp(None).init();
 
-    let mut client: Client = Args::parse().try_into().unwrap_or_else(|error| {
-        error!("Could not parse config file: {error}");
-        exit(1);
-    });
-
-    if let Err(errors) = client.run().await {
+    if let Err(errors) = Client::try_from(Args::parse())
+        .unwrap_or_else(|error| {
+            error!("Could not parse config file: {error}");
+            exit(1);
+        })
+        .run()
+        .await
+    {
         exit(i32::try_from(errors.len()).unwrap_or(i32::MAX));
     }
 
