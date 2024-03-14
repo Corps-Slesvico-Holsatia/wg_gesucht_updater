@@ -38,13 +38,18 @@ impl Session {
     ///
     /// # Errors
     /// Returns an [`anyhow::Error`] if the session client could not be constructed
-    pub fn new(timeout: Duration, user_agent: &str) -> anyhow::Result<Self> {
-        Ok(Self {
-            client: Client::builder().cookie_store(true).build()?,
+    #[allow(clippy::missing_panics_doc)]
+    #[must_use]
+    pub fn new(timeout: Duration, user_agent: &str) -> Self {
+        Self {
+            client: Client::builder()
+                .cookie_store(true)
+                .build()
+                .expect("Client builder should never fail."),
             timeout,
             user_agent: user_agent.to_string(),
             auth_data: None,
-        })
+        }
     }
 
     /// Initiate API session
@@ -203,7 +208,7 @@ impl Session {
 
 impl Default for Session {
     fn default() -> Self {
-        Self::new(TIMEOUT, USER_AGENT).expect("Could not create session")
+        Self::new(TIMEOUT, USER_AGENT)
     }
 }
 

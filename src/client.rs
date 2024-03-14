@@ -18,11 +18,12 @@ impl Client {
     ///
     /// # Errors
     /// Returns an [`anyhow::Error`] if a session could not be created.
-    pub fn new(settings: Settings) -> anyhow::Result<Self> {
-        Ok(Self {
-            session: Session::new(settings.timeout, &settings.user_agent)?,
+    #[must_use]
+    pub fn new(settings: Settings) -> Self {
+        Self {
+            session: Session::new(settings.timeout, &settings.user_agent),
             settings,
-        })
+        }
     }
 
     /// Run the client as per its settings
@@ -85,10 +86,8 @@ impl Client {
     }
 }
 
-impl TryFrom<Settings> for Client {
-    type Error = anyhow::Error;
-
-    fn try_from(settings: Settings) -> Result<Self, Self::Error> {
+impl From<Settings> for Client {
+    fn from(settings: Settings) -> Self {
         Self::new(settings)
     }
 }
@@ -97,6 +96,6 @@ impl TryFrom<Args> for Client {
     type Error = anyhow::Error;
 
     fn try_from(args: Args) -> Result<Self, Self::Error> {
-        args.try_into().and_then(Self::new)
+        args.try_into().map(Self::new)
     }
 }
