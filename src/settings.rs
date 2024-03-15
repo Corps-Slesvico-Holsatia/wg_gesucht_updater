@@ -14,9 +14,9 @@ pub struct Settings {
     pub(crate) password: String,
     pub(crate) user_agent: String,
     pub(crate) timeout: Duration,
-    pub(crate) activate: Vec<u32>,
-    pub(crate) bump: Vec<u32>,
-    pub(crate) deactivate: Vec<u32>,
+    pub(crate) activate: Option<Vec<u32>>,
+    pub(crate) bump: Option<Vec<u32>>,
+    pub(crate) deactivate: Option<Vec<u32>>,
 }
 
 impl From<ConfigFile> for Settings {
@@ -26,9 +26,9 @@ impl From<ConfigFile> for Settings {
             password: config.password,
             user_agent: config.user_agent.unwrap_or_else(|| USER_AGENT.to_string()),
             timeout: config.timeout_sec.map_or(TIMEOUT, Duration::from_secs),
-            activate: config.activate.unwrap_or_default(),
-            bump: config.bump.unwrap_or_default(),
-            deactivate: config.deactivate.unwrap_or_default(),
+            activate: config.activate,
+            bump: config.bump,
+            deactivate: config.deactivate,
         }
     }
 }
@@ -41,27 +41,27 @@ impl From<Parameters> for Settings {
                 password: settings.password,
                 user_agent: settings.user_agent,
                 timeout: Duration::from_secs(settings.timeout),
-                activate: offers,
-                bump: Vec::with_capacity(0),
-                deactivate: Vec::with_capacity(0),
+                activate: Some(offers),
+                bump: None,
+                deactivate: None,
             },
             Action::Bump { offers } => Self {
                 user_name: settings.user_name,
                 password: settings.password,
                 user_agent: settings.user_agent,
                 timeout: Duration::from_secs(settings.timeout),
-                activate: Vec::with_capacity(0),
-                bump: offers,
-                deactivate: Vec::with_capacity(0),
+                activate: None,
+                bump: Some(offers),
+                deactivate: None,
             },
             Action::Deactivate { offers } => Self {
                 user_name: settings.user_name,
                 password: settings.password,
                 user_agent: settings.user_agent,
                 timeout: Duration::from_secs(settings.timeout),
-                activate: Vec::with_capacity(0),
-                bump: Vec::with_capacity(0),
-                deactivate: offers,
+                activate: None,
+                bump: None,
+                deactivate: Some(offers),
             },
         }
     }

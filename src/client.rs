@@ -53,35 +53,41 @@ impl Client {
     }
 
     async fn activate_offers(&mut self, errors: &mut Vec<anyhow::Error>) {
-        for &id in &self.settings.activate {
-            info!("Activating offer: {id}");
+        if let Some(offers) = &self.settings.activate {
+            for &id in offers {
+                info!("Activating offer: {id}");
 
-            if let Err(error) = self.session.activate(id).await {
-                error!("Could not activate offer {id}: {error}");
-                errors.push(error);
-            };
+                if let Err(error) = self.session.activate(id).await {
+                    error!("Could not activate offer {id}: {error}");
+                    errors.push(error);
+                };
+            }
         }
     }
 
     async fn bump_offers(&mut self, errors: &mut Vec<anyhow::Error>) {
-        for &id in &self.settings.bump {
-            info!("Bumping offer: {id}");
+        if let Some(offers) = &self.settings.bump {
+            for &id in offers {
+                info!("Bumping offer: {id}");
 
-            if let Err(error) = self.session.bump(id).await {
-                error!("Could not bump offer {id}: {error}");
-                errors.push(error);
-            };
+                if let Err(error) = self.session.bump(id).await {
+                    error!("Could not bump offer {id}: {error}");
+                    errors.push(error);
+                };
+            }
         }
     }
 
     async fn deactivate_offers(&mut self, errors: &mut Vec<anyhow::Error>) {
-        for &id in &self.settings.deactivate {
-            info!("Deactivating offer: {id}");
+        if let Some(offers) = &self.settings.deactivate {
+            for &id in offers {
+                info!("Deactivating offer: {id}");
 
-            if let Err(error) = self.session.deactivate(id).await {
-                error!("Could not deactivate offer {id}: {error}");
-                errors.push(error);
-            };
+                if let Err(error) = self.session.deactivate(id).await {
+                    error!("Could not deactivate offer {id}: {error}");
+                    errors.push(error);
+                };
+            }
         }
     }
 }
