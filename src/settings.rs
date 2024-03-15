@@ -1,4 +1,4 @@
-use crate::args::{Mode, Parameters};
+use crate::args::{Action, Mode, Parameters};
 use crate::config_file::ConfigFile;
 use crate::session::{TIMEOUT, USER_AGENT};
 use crate::Args;
@@ -35,16 +35,34 @@ impl From<ConfigFile> for Settings {
 
 impl From<Parameters> for Settings {
     fn from(settings: Parameters) -> Self {
-        let (activate, bump, deactivate) = settings.action.into();
-
-        Self {
-            user_name: settings.user_name,
-            password: settings.password,
-            user_agent: settings.user_agent,
-            timeout: Duration::from_secs(settings.timeout),
-            activate,
-            bump,
-            deactivate,
+        match settings.action {
+            Action::Activate { offers } => Self {
+                user_name: settings.user_name,
+                password: settings.password,
+                user_agent: settings.user_agent,
+                timeout: Duration::from_secs(settings.timeout),
+                activate: offers,
+                bump: Vec::with_capacity(0),
+                deactivate: Vec::with_capacity(0),
+            },
+            Action::Bump { offers } => Self {
+                user_name: settings.user_name,
+                password: settings.password,
+                user_agent: settings.user_agent,
+                timeout: Duration::from_secs(settings.timeout),
+                activate: Vec::with_capacity(0),
+                bump: offers,
+                deactivate: Vec::with_capacity(0),
+            },
+            Action::Deactivate { offers } => Self {
+                user_name: settings.user_name,
+                password: settings.password,
+                user_agent: settings.user_agent,
+                timeout: Duration::from_secs(settings.timeout),
+                activate: Vec::with_capacity(0),
+                bump: Vec::with_capacity(0),
+                deactivate: offers,
+            },
         }
     }
 }
