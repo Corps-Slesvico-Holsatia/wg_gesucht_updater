@@ -10,7 +10,7 @@ use std::time::Duration;
 
 const LOGIN_URL: &str = "https://www.wg-gesucht.de/ajax/sessions.php?action=login";
 const OFFERS_LIST_URL: &str = "https://www.wg-gesucht.de/meine-anzeigen.html";
-const OFFER_MODIFY_URL: &str = "https://www.wg-gesucht.de/api/offers/";
+const OFFER_MODIFY_URL: &str = "https://www.wg-gesucht.de/api/offers";
 const CLIENT_ID: &str = "wg_desktop_website";
 pub const TIMEOUT: Duration = Duration::from_secs(10);
 pub const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36";
@@ -190,12 +190,7 @@ impl Session {
             |auth_data| {
                 Ok(self
                     .client
-                    .patch(
-                        Url::parse(OFFER_MODIFY_URL)?
-                            .join(&format!("{id}/"))?
-                            .join("users/")?
-                            .join(auth_data.user_id())?,
-                    )
+                    .patch(build_patch_url(id, auth_data.user_id()))
                     .headers(auth_data.try_into()?)
                     .header("User-Agent", &self.user_agent)
                     .json(&PatchData::new(deactivated, auth_data.csrf_token()))
@@ -240,4 +235,14 @@ fn scrape_csrf_token_and_user_id(html: &Html) -> anyhow::Result<(&str, &str)> {
             .attr("data-user_id")
             .ok_or_else(|| anyhow!("Could not extract user ID from element"))?,
     ))
+}
+
+fn build_patch_url(offer_id: u32, user_id: &str) -> Url {
+    let mut url = Url::parse(OFFER_MODIFY_URL).expect("Default URL should be valid.");
+    url.path_segments_mut()
+        .expect("Path segments should be accessible.")
+        .push(&offer_id.to_string())
+        .push("users")
+        .push(user_id);
+    url
 }
