@@ -12,13 +12,13 @@ use std::time::Duration;
 /// command line arguments or from a configuration file.
 #[derive(Debug)]
 pub struct Settings {
-    pub(crate) user_name: String,
-    pub(crate) password: String,
-    pub(crate) user_agent: String,
-    pub(crate) timeout: Duration,
-    pub(crate) activate: Option<Vec<u32>>,
-    pub(crate) bump: Option<Vec<u32>>,
-    pub(crate) deactivate: Option<Vec<u32>>,
+    user_name: String,
+    password: String,
+    user_agent: String,
+    timeout: Duration,
+    activate: Option<Vec<u32>>,
+    bump: Option<Vec<u32>>,
+    deactivate: Option<Vec<u32>>,
 }
 
 impl Settings {
