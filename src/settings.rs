@@ -1,7 +1,8 @@
 use crate::args::{Action, Mode, Parameters};
 use crate::config_file::ConfigFile;
 use crate::session::{TIMEOUT, USER_AGENT};
-use crate::Args;
+use crate::{Args, Session};
+use log::{error, info};
 use serde_rw::FromFile;
 use std::time::Duration;
 
@@ -18,6 +19,62 @@ pub struct Settings {
     pub(crate) activate: Option<Vec<u32>>,
     pub(crate) bump: Option<Vec<u32>>,
     pub(crate) deactivate: Option<Vec<u32>>,
+}
+
+impl Settings {
+    /// Apply the settings.
+    ///
+    /// # Errors
+    /// Returns an [`Vec<anyhow::Error>`] containing any errors that occurred.
+    pub async fn apply(&self) -> Result<(), Vec<anyhow::Error>> {
+        let mut session = Session::new(self.timeout, &self.user_agent);
+
+        if let Err(error) = session.login(&self.user_name, &self.password).await {
+            error!("Login failed: {error}");
+            return Err(vec![error]);
+        }
+
+        let mut errors = Vec::new();
+
+        if let Some(ref offers) = self.deactivate {
+            for &id in offers {
+                info!("Deactivating offer: {id}");
+
+                if let Err(error) = session.deactivate(id).await {
+                    error!("Could not deactivate offer {id}: {error}");
+                    errors.push(error);
+                };
+            }
+        }
+
+        if let Some(ref offers) = self.activate {
+            for &id in offers {
+                info!("Activating offer: {id}");
+
+                if let Err(error) = session.activate(id).await {
+                    error!("Could not activate offer {id}: {error}");
+                    errors.push(error);
+                };
+            }
+        }
+
+        if let Some(ref offers) = self.bump {
+            for &id in offers {
+                info!("Bumping offer: {id}");
+
+                if let Err(error) = session.bump(id).await {
+                    error!("Could not bump offer {id}: {error}");
+                    errors.push(error);
+                };
+            }
+        }
+
+        if errors.is_empty() {
+            Ok(())
+        } else {
+            Err(errors)
+        }
+    }
 }
 
 impl From<ConfigFile> for Settings {
