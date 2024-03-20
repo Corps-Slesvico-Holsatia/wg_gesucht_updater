@@ -6,6 +6,7 @@ use log::{error, info};
 ///
 /// The client's settings can be either parsed from the
 /// command line arguments or from a configuration file.
+#[derive(Debug)]
 pub struct Client {
     settings: Settings,
     session: Session,

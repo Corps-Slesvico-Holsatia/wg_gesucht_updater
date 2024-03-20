@@ -9,6 +9,7 @@ use std::time::Duration;
 ///
 /// The settings can be either parsed from the
 /// command line arguments or from a configuration file.
+#[derive(Debug)]
 pub struct Settings {
     pub(crate) user_name: String,
     pub(crate) password: String,
