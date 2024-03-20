@@ -2,6 +2,7 @@ use crate::auth_data::AuthData;
 use crate::login_data::LoginData;
 use crate::patch_data::PatchData;
 use anyhow::anyhow;
+use log::debug;
 use once_cell::sync::Lazy;
 use reqwest::{Client, Request, Response, Url};
 use scraper::{Html, Selector};
@@ -244,5 +245,6 @@ fn build_patch_url(offer_id: u32, user_id: &str) -> Url {
         .push(&offer_id.to_string())
         .push("users")
         .push(user_id);
+    debug!("Patch URL: {url}");
     url
 }
