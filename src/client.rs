@@ -36,7 +36,7 @@ impl Client {
             .login(&self.settings.user_name, &self.settings.password)
             .await
         {
-            error!("{error}");
+            error!("Login failed: {error}");
             return Err(vec![error]);
         }
 
