@@ -3,7 +3,7 @@ use crate::login_data::LoginData;
 use crate::patch_data::PatchData;
 use anyhow::anyhow;
 use once_cell::sync::Lazy;
-use reqwest::{Client, Request, Response};
+use reqwest::{Client, Request, Response, Url};
 use scraper::{Html, Selector};
 use std::collections::HashMap;
 use std::time::Duration;
@@ -190,12 +190,12 @@ impl Session {
             |auth_data| {
                 Ok(self
                     .client
-                    .patch(format!(
-                        "{}/{}/users/{}",
-                        OFFER_MODIFY_URL,
-                        id,
-                        auth_data.user_id()
-                    ))
+                    .patch(
+                        Url::parse(OFFER_MODIFY_URL)?
+                            .join(&id.to_string())?
+                            .join("users")?
+                            .join(auth_data.user_id())?,
+                    )
                     .headers(auth_data.try_into()?)
                     .header("User-Agent", &self.user_agent)
                     .json(&PatchData::new(deactivated, auth_data.csrf_token()))
