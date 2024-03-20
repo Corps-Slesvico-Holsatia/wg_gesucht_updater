@@ -10,7 +10,7 @@ use std::time::Duration;
 
 const LOGIN_URL: &str = "https://www.wg-gesucht.de/ajax/sessions.php?action=login";
 const OFFERS_LIST_URL: &str = "https://www.wg-gesucht.de/meine-anzeigen.html";
-const OFFER_MODIFY_URL: &str = "https://www.wg-gesucht.de/api/offers";
+const OFFER_MODIFY_URL: &str = "https://www.wg-gesucht.de/api/offers/";
 const CLIENT_ID: &str = "wg_desktop_website";
 pub const TIMEOUT: Duration = Duration::from_secs(10);
 pub const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36";
@@ -192,8 +192,8 @@ impl Session {
                     .client
                     .patch(
                         Url::parse(OFFER_MODIFY_URL)?
-                            .join(&id.to_string())?
-                            .join("users")?
+                            .join(&format!("{id}/"))?
+                            .join("users/")?
                             .join(auth_data.user_id())?,
                     )
                     .headers(auth_data.try_into()?)
