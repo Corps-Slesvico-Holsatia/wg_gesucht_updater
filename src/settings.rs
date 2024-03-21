@@ -34,7 +34,11 @@ impl Settings {
             return Err(vec![error]);
         }
 
-        let mut errors = Vec::new();
+        let mut errors = Vec::with_capacity(
+            self.activate.as_ref().map_or(0, Vec::len)
+                + self.bump.as_ref().map_or(0, Vec::len)
+                + self.deactivate.as_ref().map_or(0, Vec::len),
+        );
 
         if let Some(ref offers) = self.deactivate {
             for &id in offers {
