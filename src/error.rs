@@ -34,6 +34,21 @@ pub struct FailedUpdates {
 
 impl FailedUpdates {
     #[must_use]
+    pub const fn activate(&self) -> &HashMap<u32, anyhow::Error> {
+        &self.activate
+    }
+
+    #[must_use]
+    pub const fn deactivate(&self) -> &HashMap<u32, anyhow::Error> {
+        &self.deactivate
+    }
+
+    #[must_use]
+    pub const fn bump(&self) -> &HashMap<u32, anyhow::Error> {
+        &self.bump
+    }
+
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.activate.is_empty() && self.deactivate.is_empty() && self.bump.is_empty()
     }
