@@ -1,7 +1,7 @@
 use crate::args::{Action, Mode, Parameters};
 use crate::config_file::ConfigFile;
 use crate::session::{TIMEOUT, USER_AGENT};
-use crate::{Args, Session};
+use crate::{Args, Error, FailedUpdates, Session};
 use log::{error, info};
 use serde_rw::FromFile;
 use std::time::Duration;
@@ -26,19 +26,15 @@ impl Settings {
     ///
     /// # Errors
     /// Returns an [`Vec<anyhow::Error>`] containing any errors that occurred.
-    pub async fn apply(&self) -> Result<(), Vec<anyhow::Error>> {
+    pub async fn apply(&self) -> Result<(), Error> {
         let mut session = Session::new(self.timeout, &self.user_agent);
 
         if let Err(error) = session.login(&self.user_name, &self.password).await {
             error!("Login failed: {error}");
-            return Err(vec![error]);
+            return Err(Error::Login(error));
         }
 
-        let mut errors = Vec::with_capacity(
-            self.activate.as_ref().map_or(0, Vec::len)
-                + self.bump.as_ref().map_or(0, Vec::len)
-                + self.deactivate.as_ref().map_or(0, Vec::len),
-        );
+        let mut errors = FailedUpdates::default();
 
         if let Some(ref offers) = self.deactivate {
             for &id in offers {
@@ -46,7 +42,7 @@ impl Settings {
 
                 if let Err(error) = session.deactivate(id).await {
                     error!("Could not deactivate offer {id}: {error}");
-                    errors.push(error);
+                    errors.deactivate.insert(id, error);
                 };
             }
         }
@@ -57,7 +53,7 @@ impl Settings {
 
                 if let Err(error) = session.activate(id).await {
                     error!("Could not activate offer {id}: {error}");
-                    errors.push(error);
+                    errors.activate.insert(id, error);
                 };
             }
         }
@@ -68,7 +64,7 @@ impl Settings {
 
                 if let Err(error) = session.bump(id).await {
                     error!("Could not bump offer {id}: {error}");
-                    errors.push(error);
+                    errors.bump.insert(id, error);
                 };
             }
         }
@@ -76,7 +72,7 @@ impl Settings {
         if errors.is_empty() {
             Ok(())
         } else {
-            Err(errors)
+            Err(Error::Updates(errors))
         }
     }
 }
