@@ -34,7 +34,7 @@ impl Settings {
             return Err(Error::Login(error));
         }
 
-        let mut errors = FailedUpdates::default();
+        let mut failed_updates = FailedUpdates::default();
 
         if let Some(ref offers) = self.deactivate {
             for &id in offers {
@@ -42,7 +42,7 @@ impl Settings {
 
                 if let Err(error) = session.deactivate(id).await {
                     error!("Could not deactivate offer {id}: {error}");
-                    errors.deactivate.insert(id, error);
+                    failed_updates.deactivate.insert(id, error);
                 };
             }
         }
@@ -53,7 +53,7 @@ impl Settings {
 
                 if let Err(error) = session.activate(id).await {
                     error!("Could not activate offer {id}: {error}");
-                    errors.activate.insert(id, error);
+                    failed_updates.activate.insert(id, error);
                 };
             }
         }
@@ -64,15 +64,15 @@ impl Settings {
 
                 if let Err(error) = session.bump(id).await {
                     error!("Could not bump offer {id}: {error}");
-                    errors.bump.insert(id, error);
+                    failed_updates.bump.insert(id, error);
                 };
             }
         }
 
-        if errors.is_empty() {
+        if failed_updates.is_empty() {
             Ok(())
         } else {
-            Err(Error::Updates(errors))
+            Err(Error::Updates(failed_updates))
         }
     }
 }
