@@ -64,10 +64,14 @@ impl Session {
     ///
     /// # Errors
     /// Returns an [`anyhow::Error`] on request errors
-    pub async fn login(&mut self, user_name: &str, password: &str) -> anyhow::Result<()> {
+    pub async fn login(
+        &mut self,
+        user_name: &str,
+        password: &str,
+    ) -> anyhow::Result<Option<AuthData>> {
         self.get_auth_data(user_name, password)
             .await
-            .map(|auth_data| self.auth_data = Some(auth_data))
+            .map(|auth_data| self.auth_data.replace(auth_data))
     }
 
     /// Bump an offer
@@ -79,7 +83,7 @@ impl Session {
     ///
     /// # Errors
     /// Returns an [`anyhow::Error`] on request errors
-    pub async fn bump(&mut self, id: u32) -> anyhow::Result<Response> {
+    pub async fn bump(&self, id: u32) -> anyhow::Result<Response> {
         self.deactivate(id).await?;
         self.activate(id).await
     }
@@ -91,7 +95,7 @@ impl Session {
     ///
     /// # Errors
     /// Returns an [`anyhow::Error`] on request errors
-    pub async fn deactivate(&mut self, id: u32) -> anyhow::Result<Response> {
+    pub async fn deactivate(&self, id: u32) -> anyhow::Result<Response> {
         Ok(self
             .client
             .execute(self.build_patch_request(id, true)?)
@@ -106,7 +110,7 @@ impl Session {
     ///
     /// # Errors
     /// Returns an [`anyhow::Error`] on request errors
-    pub async fn activate(&mut self, id: u32) -> anyhow::Result<Response> {
+    pub async fn activate(&self, id: u32) -> anyhow::Result<Response> {
         Ok(self
             .client
             .execute(self.build_patch_request(id, false)?)
@@ -114,7 +118,7 @@ impl Session {
             .error_for_status()?)
     }
 
-    async fn get_auth_data(&mut self, user_name: &str, password: &str) -> anyhow::Result<AuthData> {
+    async fn get_auth_data(&self, user_name: &str, password: &str) -> anyhow::Result<AuthData> {
         let (dev_ref, access_token) = self
             .get_dev_ref_and_access_token(user_name, password)
             .await?;
@@ -129,7 +133,7 @@ impl Session {
     }
 
     async fn get_dev_ref_and_access_token(
-        &mut self,
+        &self,
         user_name: &str,
         password: &str,
     ) -> anyhow::Result<(String, String)> {
@@ -144,7 +148,7 @@ impl Session {
         .map(|(dev_ref, access_token)| (dev_ref.to_string(), access_token.to_string()))
     }
 
-    async fn get_csrf_token_and_user_id(&mut self) -> anyhow::Result<(String, String)> {
+    async fn get_csrf_token_and_user_id(&self) -> anyhow::Result<(String, String)> {
         scrape_csrf_token_and_user_id(&Html::parse_document(&String::from_utf8(
             self.client
                 .execute(self.build_offer_list_request()?)
@@ -158,7 +162,7 @@ impl Session {
     }
 
     async fn execute_login_request(
-        &mut self,
+        &self,
         user_name: &str,
         password: &str,
     ) -> reqwest::Result<Response> {
