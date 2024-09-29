@@ -1,3 +1,5 @@
+//! CLI tool to programmatically update offers on wg-gesucht.de
+
 use clap::Parser;
 use wg_gesucht_updater::{Args, Settings};
 

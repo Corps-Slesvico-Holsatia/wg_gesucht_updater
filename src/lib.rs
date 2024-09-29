@@ -1,3 +1,5 @@
+//! Library to programmatically update offers on wg-gesucht.de.
+
 pub use args::Args;
 pub use error::{Error, FailedUpdates};
 pub use session::Session;
