@@ -29,17 +29,17 @@ impl Session {
     /// Returns an [`anyhow::Error`] if the session client could not be constructed.
     #[allow(clippy::missing_panics_doc)]
     #[must_use]
-    pub fn new(
+    pub const fn new(
         client: Client,
         auth_data: AuthData,
         timeout: Duration,
-        user_agent: Cow<'_, str>,
+        user_agent: String,
     ) -> Self {
         Self {
             client,
             auth_data,
             timeout,
-            user_agent: user_agent.into_owned(),
+            user_agent,
         }
     }
 
