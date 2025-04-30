@@ -9,9 +9,10 @@ use scraper::{Html, Selector};
 
 use crate::auth_data::AuthData;
 use crate::login_data::LoginData;
-use crate::Session;
 
-pub mod session;
+use session::Session;
+
+mod session;
 
 const LOGIN_URL: &str = "https://www.wg-gesucht.de/ajax/sessions.php?action=login";
 const OFFERS_LIST_URL: &str = "https://www.wg-gesucht.de/meine-anzeigen.html";

@@ -1,7 +1,6 @@
 //! CLI tool to programmatically update offers on wg-gesucht.de.
 
 pub use args::Args;
-pub use client::session::Session;
 pub use error::{Error, FailedUpdates};
 pub use settings::Settings;
 
