@@ -1,5 +1,8 @@
-use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
+
+pub use failed_updates::FailedUpdates;
+
+mod failed_updates;
 
 /// Errors that can occur during API calls.
 #[derive(Debug)]
@@ -7,7 +10,7 @@ pub enum Error {
     /// An error occurred during login.
     Login(anyhow::Error),
     /// Some offers failed to update.
-    Updates(FailedUpdates),
+    Updates(Box<FailedUpdates>),
 }
 
 impl Display for Error {
@@ -28,59 +31,14 @@ impl std::error::Error for Error {
     }
 }
 
-/// Details about failed updates.
-#[derive(Debug, Default)]
-pub struct FailedUpdates {
-    pub(crate) activate: HashMap<u32, anyhow::Error>,
-    pub(crate) deactivate: HashMap<u32, anyhow::Error>,
-    pub(crate) bump: HashMap<u32, anyhow::Error>,
-}
-
-impl FailedUpdates {
-    /// Returns a map of offer IDs that failed to activate
-    /// alongside the respective error that occurred.
-    #[must_use]
-    pub const fn activate(&self) -> &HashMap<u32, anyhow::Error> {
-        &self.activate
-    }
-
-    /// Returns a map of offer IDs that failed to deactivate
-    /// alongside the respective error that occurred.
-    #[must_use]
-    pub const fn deactivate(&self) -> &HashMap<u32, anyhow::Error> {
-        &self.deactivate
-    }
-
-    /// Returns a map of offer IDs that failed to bump
-    /// alongside the respective error that occurred.
-    #[must_use]
-    pub const fn bump(&self) -> &HashMap<u32, anyhow::Error> {
-        &self.bump
-    }
-
-    /// Returns `true` iff there are no errors.
-    #[must_use]
-    pub fn is_empty(&self) -> bool {
-        self.activate.is_empty() && self.deactivate.is_empty() && self.bump.is_empty()
+impl From<anyhow::Error> for Error {
+    fn from(error: anyhow::Error) -> Self {
+        Self::Login(error)
     }
 }
 
-impl Display for FailedUpdates {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        for (id, error) in &self.activate {
-            write!(f, "Failed to activate #{id}: {error}")?;
-        }
-
-        for (id, error) in &self.deactivate {
-            write!(f, "Failed to deactivate #{id}: {error}")?;
-        }
-
-        for (id, error) in &self.bump {
-            write!(f, "Failed to bump #{id}: {error}")?;
-        }
-
-        Ok(())
+impl From<FailedUpdates> for Error {
+    fn from(failed_updates: FailedUpdates) -> Self {
+        Self::Updates(Box::new(failed_updates))
     }
 }
-
-impl std::error::Error for FailedUpdates {}

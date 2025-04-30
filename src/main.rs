@@ -1,8 +1,7 @@
 //! CLI tool to programmatically update offers on wg-gesucht.de.
 
-pub use args::Args;
-pub use error::{Error, FailedUpdates};
-pub use settings::Settings;
+use args::Args;
+use settings::Settings;
 
 mod args;
 mod auth_data;

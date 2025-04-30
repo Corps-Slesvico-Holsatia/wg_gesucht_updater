@@ -3,10 +3,10 @@ use std::time::Duration;
 use log::{error, info};
 use serde_rw::FromFile;
 
-use crate::args::{Action, Mode, Parameters};
+use crate::args::{Action, Args, Mode, Parameters};
 use crate::client::{Client, TIMEOUT, USER_AGENT};
 use crate::config_file::ConfigFile;
-use crate::{Args, Error, FailedUpdates};
+use crate::error::{Error, FailedUpdates};
 
 /// Source-agnostic settings
 ///
@@ -72,7 +72,7 @@ impl Settings {
         if failed_updates.is_empty() {
             Ok(())
         } else {
-            Err(Error::Updates(failed_updates))
+            Err(failed_updates.into())
         }
     }
 }
