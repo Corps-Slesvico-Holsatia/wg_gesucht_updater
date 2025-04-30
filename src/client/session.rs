@@ -21,6 +21,8 @@ impl Session {
     /// Create a new session to the "WG gesucht" API.
     ///
     /// # Attributes
+    /// * `client` - The HTTP client.
+    /// * `auth_data` - The authentication data.
     /// * `timeout` - The HTTP request timeout.
     /// * `user_agent` - The HTTP user agent to send with the requests.
     ///
