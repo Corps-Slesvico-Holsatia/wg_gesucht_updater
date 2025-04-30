@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-/// Configuration file content
+/// Configuration file content.
 #[derive(Deserialize)]
 pub struct ConfigFile {
     pub(crate) user_name: String,

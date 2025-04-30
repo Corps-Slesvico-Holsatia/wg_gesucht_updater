@@ -38,11 +38,11 @@ impl Client {
     /// Create a new client to the "WG gesucht" API.
     ///
     /// # Attributes
-    /// * `timeout` - The HTTP request timeout
-    /// * `user_agent` - The HTTP user agent to send with the requests
+    /// * `timeout` - The HTTP request timeout.
+    /// * `user_agent` - The HTTP user agent to send with the requests.
     ///
     /// # Errors
-    /// Returns an [`anyhow::Error`] if the session client could not be constructed
+    /// Returns an [`anyhow::Error`] if the session client could not be constructed.
     #[allow(clippy::missing_panics_doc)]
     #[must_use]
     pub fn new(timeout: Duration, user_agent: &str) -> Self {
@@ -62,8 +62,8 @@ impl Client {
     /// in order to use subsequent requests to modify offers.
     ///
     /// # Attributes
-    /// * `user_name` - The user name of the wg-gesucht.de account
-    /// * `password` - The passwort associated with above user name
+    /// * `user_name` - The username of the wg-gesucht.de account.
+    /// * `password` - The password associated with above username.
     ///
     /// # Errors
     /// Returns an [`anyhow::Error`] on request errors

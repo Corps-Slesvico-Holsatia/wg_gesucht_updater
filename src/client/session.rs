@@ -19,14 +19,14 @@ pub struct Session {
 }
 
 impl Session {
-    /// Create a new session to the "WG gesucht" API
+    /// Create a new session to the "WG gesucht" API.
     ///
     /// # Attributes
-    /// * `timeout` - The HTTP request timeout
-    /// * `user_agent` - The HTTP user agent to send with the requests
+    /// * `timeout` - The HTTP request timeout.
+    /// * `user_agent` - The HTTP user agent to send with the requests.
     ///
     /// # Errors
-    /// Returns an [`anyhow::Error`] if the session client could not be constructed
+    /// Returns an [`anyhow::Error`] if the session client could not be constructed.
     #[allow(clippy::missing_panics_doc)]
     #[must_use]
     pub fn new(
@@ -43,15 +43,15 @@ impl Session {
         }
     }
 
-    /// Bump an offer
+    /// Bump an offer.
     ///
     /// This is equivalent of deactivating and then re-activating an offer.
     ///
     /// # Attributes
-    /// * `id` - The offer ID (also referred to as "ad id")
+    /// * `id` - The offer ID (also referred to as "ad id").
     ///
     /// # Errors
-    /// Returns an [`anyhow::Error`] on request errors
+    /// Returns an [`anyhow::Error`] on request errors.
     pub async fn bump(&self, id: u32) -> anyhow::Result<Response> {
         self.deactivate(id).await?;
         self.activate(id).await
@@ -60,10 +60,10 @@ impl Session {
     /// Deactivate an offer
     ///
     /// # Attributes
-    /// * `id` - The offer ID (also referred to as "ad id")
+    /// * `id` - The offer ID (also referred to as "ad id").
     ///
     /// # Errors
-    /// Returns an [`anyhow::Error`] on request errors
+    /// Returns an [`anyhow::Error`] on request errors.
     pub async fn deactivate(&self, id: u32) -> anyhow::Result<Response> {
         Ok(self
             .client
@@ -78,7 +78,7 @@ impl Session {
     /// * `id` - The offer ID (also referred to as "ad id").
     ///
     /// # Errors
-    /// Returns an [`anyhow::Error`] on request errors
+    /// Returns an [`anyhow::Error`] on request errors.
     pub async fn activate(&self, id: u32) -> anyhow::Result<Response> {
         Ok(self
             .client
