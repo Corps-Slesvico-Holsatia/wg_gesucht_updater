@@ -1,5 +1,6 @@
-use crate::functions::bool_to_int_str;
 use serde::Serialize;
+
+use crate::functions::bool_to_int_str;
 
 #[derive(Debug, Serialize)]
 pub struct PatchData<'token> {

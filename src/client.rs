@@ -1,9 +1,9 @@
 use std::borrow::Cow;
 use std::collections::HashMap;
+use std::sync::LazyLock;
 use std::time::Duration;
 
 use anyhow::anyhow;
-use once_cell::sync::Lazy;
 use reqwest::{Request, Response};
 use scraper::{Html, Selector};
 
@@ -16,17 +16,19 @@ const OFFERS_LIST_URL: &str = "https://www.wg-gesucht.de/meine-anzeigen.html";
 const CLIENT_ID: &str = "wg_desktop_website";
 pub const TIMEOUT: Duration = Duration::from_secs(10);
 pub const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36";
-static CSRF_TOKEN_SELECTOR: Lazy<Selector> = Lazy::new(|| {
+static CSRF_TOKEN_SELECTOR: LazyLock<Selector> = LazyLock::new(|| {
     Selector::parse("a[data-csrf_token]").expect("Could not create CSRF token selector")
 });
-static USER_ID_SELECTOR: Lazy<Selector> =
-    Lazy::new(|| Selector::parse("a[data-user_id]").expect("Could not create user ID selector"));
+static USER_ID_SELECTOR: LazyLock<Selector> = LazyLock::new(|| {
+    Selector::parse("a[data-user_id]").expect("Could not create user ID selector")
+});
 
 /// Session with the wg-gesucht web API
 #[derive(Debug)]
 pub struct Client {
     timeout: Duration,
     user_agent: String,
+    #[allow(clippy::struct_field_names)]
     client: reqwest::Client,
 }
 
