@@ -18,9 +18,9 @@ pub struct Settings {
     password: String,
     user_agent: String,
     timeout: Duration,
-    activate: Option<Vec<u32>>,
-    bump: Option<Vec<u32>>,
-    deactivate: Option<Vec<u32>>,
+    activate: Vec<u32>,
+    bump: Vec<u32>,
+    deactivate: Vec<u32>,
 }
 
 impl Settings {
@@ -42,37 +42,31 @@ impl Settings {
 
         let mut failed_updates = FailedUpdates::default();
 
-        if let Some(ref offers) = self.deactivate {
-            for &id in offers {
-                info!("Deactivating offer: {id}");
+        for &id in &self.deactivate {
+            info!("Deactivating offer: {id}");
 
-                if let Err(error) = session.deactivate(id).await {
-                    error!("Could not deactivate offer {id}: {error}");
-                    failed_updates.deactivate.insert(id, error);
-                };
-            }
+            if let Err(error) = session.deactivate(id).await {
+                error!("Could not deactivate offer {id}: {error}");
+                failed_updates.deactivate.insert(id, error);
+            };
         }
 
-        if let Some(ref offers) = self.activate {
-            for &id in offers {
-                info!("Activating offer: {id}");
+        for &id in &self.activate {
+            info!("Activating offer: {id}");
 
-                if let Err(error) = session.activate(id).await {
-                    error!("Could not activate offer {id}: {error}");
-                    failed_updates.activate.insert(id, error);
-                };
-            }
+            if let Err(error) = session.activate(id).await {
+                error!("Could not activate offer {id}: {error}");
+                failed_updates.activate.insert(id, error);
+            };
         }
 
-        if let Some(ref offers) = self.bump {
-            for &id in offers {
-                info!("Bumping offer: {id}");
+        for &id in &self.bump {
+            info!("Bumping offer: {id}");
 
-                if let Err(error) = session.bump(id).await {
-                    error!("Could not bump offer {id}: {error}");
-                    failed_updates.bump.insert(id, error);
-                };
-            }
+            if let Err(error) = session.bump(id).await {
+                error!("Could not bump offer {id}: {error}");
+                failed_updates.bump.insert(id, error);
+            };
         }
 
         if failed_updates.is_empty() {
@@ -105,27 +99,27 @@ impl From<Parameters> for Settings {
                 password: settings.password,
                 user_agent: settings.user_agent,
                 timeout: Duration::from_secs(settings.timeout),
-                activate: Some(offers),
-                bump: None,
-                deactivate: None,
+                activate: offers,
+                bump: Vec::with_capacity(0),
+                deactivate: Vec::with_capacity(0),
             },
             Action::Bump { offers } => Self {
                 user_name: settings.user_name,
                 password: settings.password,
                 user_agent: settings.user_agent,
                 timeout: Duration::from_secs(settings.timeout),
-                activate: None,
-                bump: Some(offers),
-                deactivate: None,
+                activate: Vec::with_capacity(0),
+                bump: offers,
+                deactivate: Vec::with_capacity(0),
             },
             Action::Deactivate { offers } => Self {
                 user_name: settings.user_name,
                 password: settings.password,
                 user_agent: settings.user_agent,
                 timeout: Duration::from_secs(settings.timeout),
-                activate: None,
-                bump: None,
-                deactivate: Some(offers),
+                activate: Vec::with_capacity(0),
+                bump: Vec::with_capacity(0),
+                deactivate: offers,
             },
         }
     }
