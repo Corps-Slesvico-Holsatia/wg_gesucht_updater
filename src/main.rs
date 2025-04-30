@@ -7,6 +7,7 @@ pub use settings::Settings;
 
 mod args;
 mod auth_data;
+mod client;
 mod config_file;
 mod error;
 mod functions;

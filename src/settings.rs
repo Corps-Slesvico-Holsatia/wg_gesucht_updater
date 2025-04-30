@@ -1,10 +1,12 @@
-use crate::args::{Action, Mode, Parameters};
-use crate::config_file::ConfigFile;
-use crate::session::{TIMEOUT, USER_AGENT};
-use crate::{Args, Error, FailedUpdates, Session};
+use std::time::Duration;
+
 use log::{error, info};
 use serde_rw::FromFile;
-use std::time::Duration;
+
+use crate::args::{Action, Mode, Parameters};
+use crate::client::{Client, TIMEOUT, USER_AGENT};
+use crate::config_file::ConfigFile;
+use crate::{Args, Error, FailedUpdates};
 
 /// Source-agnostic settings
 ///
@@ -27,12 +29,16 @@ impl Settings {
     /// # Errors
     /// Returns an [`Vec<anyhow::Error>`] containing any errors that occurred.
     pub async fn apply(&self) -> Result<(), Error> {
-        let mut session = Session::new(self.timeout, &self.user_agent);
-
-        if let Err(error) = session.login(&self.user_name, &self.password).await {
-            error!("Login failed: {error}");
-            return Err(Error::Login(error));
-        }
+        let session = match Client::new(self.timeout, &self.user_agent)
+            .login(&self.user_name, &self.password)
+            .await
+        {
+            Ok(session) => session,
+            Err(error) => {
+                error!("Login failed: {error}");
+                return Err(Error::Login(error));
+            }
+        };
 
         let mut failed_updates = FailedUpdates::default();
 
