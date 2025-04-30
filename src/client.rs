@@ -11,6 +11,8 @@ use crate::auth_data::AuthData;
 use crate::login_data::LoginData;
 use crate::Session;
 
+pub mod session;
+
 const LOGIN_URL: &str = "https://www.wg-gesucht.de/ajax/sessions.php?action=login";
 const OFFERS_LIST_URL: &str = "https://www.wg-gesucht.de/meine-anzeigen.html";
 const CLIENT_ID: &str = "wg_desktop_website";
@@ -23,7 +25,7 @@ static USER_ID_SELECTOR: LazyLock<Selector> = LazyLock::new(|| {
     Selector::parse("a[data-user_id]").expect("Could not create user ID selector")
 });
 
-/// Session with the wg-gesucht web API
+/// Client to the wg-gesucht web API.
 #[derive(Debug)]
 pub struct Client {
     timeout: Duration,
@@ -33,7 +35,7 @@ pub struct Client {
 }
 
 impl Client {
-    /// Create a new session to the "WG gesucht" API
+    /// Create a new client to the "WG gesucht" API.
     ///
     /// # Attributes
     /// * `timeout` - The HTTP request timeout
@@ -54,7 +56,7 @@ impl Client {
         }
     }
 
-    /// Initiate API session
+    /// Initiate API session.
     ///
     /// A login must be performed as the first call to the API
     /// in order to use subsequent requests to modify offers.

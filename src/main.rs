@@ -1,8 +1,8 @@
 //! CLI tool to programmatically update offers on wg-gesucht.de.
 
 pub use args::Args;
+pub use client::session::Session;
 pub use error::{Error, FailedUpdates};
-pub use session::Session;
 pub use settings::Settings;
 
 mod args;
@@ -13,7 +13,6 @@ mod error;
 mod functions;
 mod login_data;
 mod patch_data;
-mod session;
 mod settings;
 
 use clap::Parser;
