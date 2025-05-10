@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::LazyLock;
 use std::time::Duration;
@@ -42,17 +43,17 @@ impl Client {
     /// * `user_agent` - The HTTP user agent to send with the requests.
     ///
     /// # Errors
-    /// Returns an [`anyhow::Error`] if the session client could not be constructed.
+    /// Return an [`anyhow::Error`] if the session client could not be constructed.
     #[allow(clippy::missing_panics_doc)]
     #[must_use]
-    pub fn new(timeout: Duration, user_agent: &str) -> Self {
+    pub fn new(timeout: Duration, user_agent: Cow<'_, str>) -> Self {
         Self {
             client: reqwest::Client::builder()
                 .cookie_store(true)
                 .build()
                 .expect("Client builder should never fail."),
             timeout,
-            user_agent: user_agent.to_string(),
+            user_agent: user_agent.into_owned(),
         }
     }
 
@@ -66,7 +67,7 @@ impl Client {
     /// * `password` - The password associated with above username.
     ///
     /// # Errors
-    /// Returns an [`anyhow::Error`] on request errors
+    /// Return an [`anyhow::Error`] on request errors
     pub async fn login(self, user_name: &str, password: &str) -> anyhow::Result<Session> {
         self.get_auth_data(user_name, password)
             .await
@@ -147,7 +148,7 @@ impl Client {
 
 impl Default for Client {
     fn default() -> Self {
-        Self::new(TIMEOUT, USER_AGENT)
+        Self::new(TIMEOUT, Cow::Borrowed(USER_AGENT))
     }
 }
 

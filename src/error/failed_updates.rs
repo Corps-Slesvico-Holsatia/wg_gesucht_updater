@@ -10,7 +10,7 @@ pub struct FailedUpdates {
 }
 
 impl FailedUpdates {
-    /// Returns `true` iff there are no errors.
+    /// Return `true` iff there are no errors.
     #[must_use]
     pub fn is_empty(&self) -> bool {
         self.activate.is_empty() && self.deactivate.is_empty() && self.bump.is_empty()

@@ -2,7 +2,7 @@ use serde::Serialize;
 
 use crate::functions::bool_to_int_str;
 
-#[derive(Debug, Serialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Serialize)]
 pub struct LoginData<'creds> {
     #[serde(rename = "login_email_username")]
     user_name: &'creds str,

@@ -27,7 +27,7 @@ impl Session {
     /// * `user_agent` - The HTTP user agent to send with the requests.
     ///
     /// # Errors
-    /// Returns an [`anyhow::Error`] if the session client could not be constructed.
+    /// Return an [`anyhow::Error`] if the session client could not be constructed.
     #[allow(clippy::missing_panics_doc)]
     #[must_use]
     pub const fn new(
@@ -52,7 +52,7 @@ impl Session {
     /// * `id` - The offer ID (also referred to as "ad id").
     ///
     /// # Errors
-    /// Returns an [`anyhow::Error`] on request errors.
+    /// Return an [`anyhow::Error`] on request errors.
     pub async fn bump(&self, id: u32) -> anyhow::Result<Response> {
         self.deactivate(id).await?;
         self.activate(id).await
@@ -64,7 +64,7 @@ impl Session {
     /// * `id` - The offer ID (also referred to as "ad id").
     ///
     /// # Errors
-    /// Returns an [`anyhow::Error`] on request errors.
+    /// Return an [`anyhow::Error`] on request errors.
     pub async fn deactivate(&self, id: u32) -> anyhow::Result<Response> {
         Ok(self
             .client
@@ -79,7 +79,7 @@ impl Session {
     /// * `id` - The offer ID (also referred to as "ad id").
     ///
     /// # Errors
-    /// Returns an [`anyhow::Error`] on request errors.
+    /// Return an [`anyhow::Error`] on request errors.
     pub async fn activate(&self, id: u32) -> anyhow::Result<Response> {
         Ok(self
             .client

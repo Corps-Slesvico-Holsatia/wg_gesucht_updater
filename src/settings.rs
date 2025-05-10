@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::time::Duration;
 
 use log::{error, info};
@@ -12,7 +13,7 @@ use crate::error::{Error, FailedUpdates};
 ///
 /// The settings can be either parsed from the
 /// command line arguments or from a configuration file.
-#[derive(Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Settings {
     user_name: String,
     password: String,
@@ -27,9 +28,9 @@ impl Settings {
     /// Apply the settings.
     ///
     /// # Errors
-    /// Returns an [`Vec<anyhow::Error>`] containing any errors that occurred.
+    /// Return an [`Vec<anyhow::Error>`] containing any errors that occurred.
     pub async fn apply(&self) -> Result<(), Error> {
-        let session = match Client::new(self.timeout, &self.user_agent)
+        let session = match Client::new(self.timeout, Cow::Borrowed(&self.user_agent))
             .login(&self.user_name, &self.password)
             .await
         {

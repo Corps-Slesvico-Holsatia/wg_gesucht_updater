@@ -1,6 +1,6 @@
 use reqwest::header::{HeaderMap, HeaderValue, InvalidHeaderValue};
 
-#[derive(Debug)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct AuthData {
     user_id: String,
     client_id: String,
