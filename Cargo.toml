@@ -15,7 +15,7 @@ reqwest = { version = "0.12", default-features = false, features = ["json", "coo
 scraper = "0.23"
 serde = { version = "1.0", features = ["derive"] }
 serde_rw = { version = "0.4", features = ["toml"] }
-tokio = { version = "1.45", features = ["rt-multi-thread", "macros"] }
+tokio = { version = "1.46", features = ["rt-multi-thread", "macros"] }
 
 [profile.release]
 strip = true
