@@ -26,11 +26,11 @@ impl AuthData {
         }
     }
 
-    pub fn user_id(&self) -> &str {
+    pub const fn user_id(&self) -> &str {
         self.user_id.as_str()
     }
 
-    pub fn csrf_token(&self) -> &str {
+    pub const fn csrf_token(&self) -> &str {
         self.csrf_token.as_str()
     }
 }

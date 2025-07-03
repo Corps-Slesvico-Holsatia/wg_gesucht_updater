@@ -6,7 +6,7 @@ use serde_rw::FromFile;
 
 use crate::args::{Action, Args, Mode, Parameters};
 use crate::client::{Client, TIMEOUT, USER_AGENT};
-use crate::config_file::ConfigFile;
+use crate::config_file::{Account, ConfigFile};
 use crate::error::{Error, FailedUpdates};
 
 /// Source-agnostic settings
@@ -78,16 +78,16 @@ impl Settings {
     }
 }
 
-impl From<ConfigFile> for Settings {
-    fn from(config: ConfigFile) -> Self {
+impl From<Account> for Settings {
+    fn from(account: Account) -> Self {
         Self {
-            user_name: config.user_name,
-            password: config.password,
-            user_agent: config.user_agent.unwrap_or_else(|| USER_AGENT.to_string()),
-            timeout: config.timeout_sec.map_or(TIMEOUT, Duration::from_secs),
-            activate: config.activate,
-            bump: config.bump,
-            deactivate: config.deactivate,
+            user_name: account.user_name,
+            password: account.password,
+            user_agent: account.user_agent.unwrap_or_else(|| USER_AGENT.to_string()),
+            timeout: account.timeout_sec.map_or(TIMEOUT, Duration::from_secs),
+            activate: account.activate,
+            bump: account.bump,
+            deactivate: account.deactivate,
         }
     }
 }
@@ -126,13 +126,14 @@ impl From<Parameters> for Settings {
     }
 }
 
-impl TryFrom<Args> for Settings {
+impl TryFrom<Args> for Vec<Settings> {
     type Error = anyhow::Error;
 
     fn try_from(args: Args) -> Result<Self, Self::Error> {
         match args.mode {
-            Mode::Cli(settings) => Ok(settings.into()),
-            Mode::ConfigFile { config_file } => ConfigFile::from_file(config_file).map(Into::into),
+            Mode::Cli(settings) => Ok(vec![settings.into()]),
+            Mode::ConfigFile { config_file } => ConfigFile::from_file(config_file)
+                .map(|config_file| config_file.accounts.into_iter().map(Into::into).collect()),
         }
     }
 }
