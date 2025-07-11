@@ -28,7 +28,6 @@ impl Session {
     ///
     /// # Errors
     /// Return an [`anyhow::Error`] if the session client could not be constructed.
-    #[allow(clippy::missing_panics_doc)]
     #[must_use]
     pub const fn new(
         client: Client,
