@@ -39,6 +39,7 @@ impl Client {
     /// Create a new client to the "WG gesucht" API.
     ///
     /// # Errors
+    ///
     /// Return an [`anyhow::Error`] if the session client could not be constructed.
     #[allow(clippy::missing_panics_doc)]
     #[must_use]
@@ -59,6 +60,7 @@ impl Client {
     /// in order to use subsequent requests to modify offers.
     ///
     /// # Errors
+    ///
     /// Return an [`anyhow::Error`] on request errors
     pub async fn login(self, user_name: &str, password: &str) -> anyhow::Result<Session> {
         self.get_auth_data(user_name, password)

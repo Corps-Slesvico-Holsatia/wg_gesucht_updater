@@ -39,6 +39,7 @@ impl Session {
     /// This is equivalent of deactivating and then re-activating an offer.
     ///
     /// # Errors
+    ///
     /// Return an [`anyhow::Error`] on request errors.
     pub async fn bump(&self, id: u32) -> anyhow::Result<Response> {
         self.deactivate(id).await?;
@@ -48,6 +49,7 @@ impl Session {
     /// Deactivate an offer
     ///
     /// # Errors
+    ///
     /// Return an [`anyhow::Error`] on request errors.
     pub async fn deactivate(&self, id: u32) -> anyhow::Result<Response> {
         Ok(self
@@ -60,6 +62,7 @@ impl Session {
     /// Activate an offer
     ///
     /// # Errors
+    ///
     /// Return an [`anyhow::Error`] on request errors.
     pub async fn activate(&self, id: u32) -> anyhow::Result<Response> {
         Ok(self
