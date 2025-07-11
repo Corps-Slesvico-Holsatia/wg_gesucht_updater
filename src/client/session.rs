@@ -25,9 +25,6 @@ impl Session {
     /// * `auth_data` - The authentication data.
     /// * `timeout` - The HTTP request timeout.
     /// * `user_agent` - The HTTP user agent to send with the requests.
-    ///
-    /// # Errors
-    /// Return an [`anyhow::Error`] if the session client could not be constructed.
     #[must_use]
     pub const fn new(
         client: Client,
