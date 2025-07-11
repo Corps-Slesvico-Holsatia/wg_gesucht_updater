@@ -19,12 +19,6 @@ pub struct Session {
 
 impl Session {
     /// Create a new session to the "WG gesucht" API.
-    ///
-    /// # Attributes
-    /// * `client` - The HTTP client.
-    /// * `auth_data` - The authentication data.
-    /// * `timeout` - The HTTP request timeout.
-    /// * `user_agent` - The HTTP user agent to send with the requests.
     #[must_use]
     pub const fn new(
         client: Client,
@@ -44,9 +38,6 @@ impl Session {
     ///
     /// This is equivalent of deactivating and then re-activating an offer.
     ///
-    /// # Attributes
-    /// * `id` - The offer ID (also referred to as "ad id").
-    ///
     /// # Errors
     /// Return an [`anyhow::Error`] on request errors.
     pub async fn bump(&self, id: u32) -> anyhow::Result<Response> {
@@ -55,9 +46,6 @@ impl Session {
     }
 
     /// Deactivate an offer
-    ///
-    /// # Attributes
-    /// * `id` - The offer ID (also referred to as "ad id").
     ///
     /// # Errors
     /// Return an [`anyhow::Error`] on request errors.
@@ -70,9 +58,6 @@ impl Session {
     }
 
     /// Activate an offer
-    ///
-    /// # Attributes
-    /// * `id` - The offer ID (also referred to as "ad id").
     ///
     /// # Errors
     /// Return an [`anyhow::Error`] on request errors.
