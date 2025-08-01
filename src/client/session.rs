@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::time::Duration;
 
 use log::debug;
@@ -14,7 +15,7 @@ pub struct Session {
     client: Client,
     auth_data: AuthData,
     timeout: Duration,
-    user_agent: String,
+    user_agent: Cow<'static, str>,
 }
 
 impl Session {
@@ -24,7 +25,7 @@ impl Session {
         client: Client,
         auth_data: AuthData,
         timeout: Duration,
-        user_agent: String,
+        user_agent: Cow<'static, str>,
     ) -> Self {
         Self {
             client,
@@ -77,7 +78,7 @@ impl Session {
             .client
             .patch(build_patch_url(id, self.auth_data.user_id()))
             .headers((&self.auth_data).try_into()?)
-            .header("User-Agent", &self.user_agent)
+            .header("User-Agent", self.user_agent.as_ref())
             .json(&PatchData::new(deactivated, self.auth_data.csrf_token()))
             .timeout(self.timeout)
             .build()?)

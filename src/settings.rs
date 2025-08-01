@@ -29,8 +29,8 @@ impl Settings {
     ///
     /// # Errors
     /// Return an [`Vec<anyhow::Error>`] containing any errors that occurred.
-    pub async fn apply(&self) -> Result<(), Error> {
-        let session = match Client::new(self.timeout, Cow::Borrowed(&self.user_agent))
+    pub async fn apply(self) -> Result<(), Error> {
+        let session = match Client::new(self.timeout, Cow::Owned(self.user_agent))
             .login(&self.user_name, &self.password)
             .await
         {

@@ -30,7 +30,7 @@ static USER_ID_SELECTOR: LazyLock<Selector> = LazyLock::new(|| {
 #[derive(Debug)]
 pub struct Client {
     timeout: Duration,
-    user_agent: String,
+    user_agent: Cow<'static, str>,
     #[allow(clippy::struct_field_names)]
     client: reqwest::Client,
 }
@@ -43,14 +43,14 @@ impl Client {
     /// Return an [`anyhow::Error`] if the session client could not be constructed.
     #[allow(clippy::missing_panics_doc)]
     #[must_use]
-    pub fn new(timeout: Duration, user_agent: Cow<'_, str>) -> Self {
+    pub fn new(timeout: Duration, user_agent: Cow<'static, str>) -> Self {
         Self {
             client: reqwest::Client::builder()
                 .cookie_store(true)
                 .build()
                 .expect("Client builder should never fail."),
             timeout,
-            user_agent: user_agent.into_owned(),
+            user_agent,
         }
     }
 
@@ -114,7 +114,7 @@ impl Client {
     fn build_offer_list_request(&self) -> reqwest::Result<Request> {
         self.client
             .get(OFFERS_LIST_URL)
-            .header("User-Agent", &self.user_agent)
+            .header("User-Agent", self.user_agent.as_ref())
             .timeout(self.timeout)
             .build()
     }
@@ -134,7 +134,7 @@ impl Client {
         self.client
             .post(LOGIN_URL)
             .json(&LoginData::new(user_name, password, true, "de"))
-            .header("User-Agent", &self.user_agent)
+            .header("User-Agent", self.user_agent.as_ref())
             .timeout(self.timeout)
             .build()
     }
