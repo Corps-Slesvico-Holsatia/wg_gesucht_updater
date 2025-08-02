@@ -1,5 +1,6 @@
-use reqwest::header::{HeaderMap, HeaderValue, InvalidHeaderValue};
 use std::borrow::Cow;
+
+use reqwest::header::{HeaderMap, HeaderValue, InvalidHeaderValue};
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct AuthData {

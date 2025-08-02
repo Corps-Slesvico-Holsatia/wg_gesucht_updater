@@ -1,8 +1,9 @@
+use std::borrow::Cow;
+use std::time::Duration;
+
 use anyhow::anyhow;
 use log::{error, info};
 use serde_rw::FromFile;
-use std::borrow::Cow;
-use std::time::Duration;
 
 use crate::args::{Action, Args, Mode, Parameters};
 use crate::client::{Client, TIMEOUT, USER_AGENT};

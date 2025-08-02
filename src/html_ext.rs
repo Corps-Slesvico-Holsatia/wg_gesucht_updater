@@ -1,6 +1,7 @@
+use std::sync::LazyLock;
+
 use anyhow::anyhow;
 use scraper::{Html, Selector};
-use std::sync::LazyLock;
 
 static CSRF_TOKEN_SELECTOR: LazyLock<Selector> = LazyLock::new(|| {
     Selector::parse("a[data-csrf_token]").expect("Could not create CSRF token selector")

@@ -3,13 +3,12 @@ use std::time::Duration;
 
 use reqwest::{Request, Response};
 use scraper::Html;
+use session::Session;
 
 use crate::auth_data::AuthData;
-use crate::login_data::LoginData;
-
 use crate::html_ext::HtmlExt;
+use crate::login_data::LoginData;
 use crate::response_ext::ResponseExt;
-use session::Session;
 
 mod session;
 

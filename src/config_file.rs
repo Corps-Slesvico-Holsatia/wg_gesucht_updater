@@ -1,6 +1,5 @@
-use serde::Deserialize;
-
 pub use account::Account;
+use serde::Deserialize;
 
 mod account;
 
