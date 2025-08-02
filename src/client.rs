@@ -74,11 +74,11 @@ impl Client {
             .await?;
         let (csrf_token, user_id) = self.get_csrf_token_and_user_id().await?;
         Ok(AuthData::new(
-            user_id,
-            CLIENT_ID.to_string(),
-            access_token,
-            dev_ref,
-            csrf_token,
+            user_id.into(),
+            CLIENT_ID.into(),
+            access_token.into(),
+            dev_ref.into(),
+            csrf_token.into(),
         ))
     }
 
