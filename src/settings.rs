@@ -49,7 +49,7 @@ impl Settings {
             if let Err(error) = session.deactivate(id).await {
                 error!("Could not deactivate offer {id}: {error}");
                 failed_updates.deactivate.insert(id, error);
-            };
+            }
         }
 
         for &id in &self.activate {
@@ -58,7 +58,7 @@ impl Settings {
             if let Err(error) = session.activate(id).await {
                 error!("Could not activate offer {id}: {error}");
                 failed_updates.activate.insert(id, error);
-            };
+            }
         }
 
         for &id in &self.bump {
@@ -67,7 +67,7 @@ impl Settings {
             if let Err(error) = session.bump(id).await {
                 error!("Could not bump offer {id}: {error}");
                 failed_updates.bump.insert(id, error);
-            };
+            }
         }
 
         if failed_updates.is_empty() {
