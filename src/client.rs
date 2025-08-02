@@ -1,5 +1,5 @@
 use std::borrow::Cow;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::time::Duration;
 
 use anyhow::anyhow;
@@ -87,7 +87,7 @@ impl Client {
                 .await?
                 .cookies()
                 .map(|cookie| (cookie.name().to_string(), cookie.value().to_string()))
-                .collect::<HashMap<_, _>>(),
+                .collect::<BTreeMap<_, _>>(),
         )
         .map(|(dev_ref, access_token)| (dev_ref.to_string(), access_token.to_string()))
     }
@@ -142,7 +142,7 @@ impl Default for Client {
 }
 
 fn scrape_dev_ref_and_access_token(
-    cookies: &HashMap<String, String>,
+    cookies: &BTreeMap<String, String>,
 ) -> anyhow::Result<(&str, &str)> {
     Ok((
         cookies
