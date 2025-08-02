@@ -1,8 +1,8 @@
-use std::borrow::Cow;
-use std::time::Duration;
-
+use anyhow::anyhow;
 use log::{error, info};
 use serde_rw::FromFile;
+use std::borrow::Cow;
+use std::time::Duration;
 
 use crate::args::{Action, Args, Mode, Parameters};
 use crate::client::{Client, TIMEOUT, USER_AGENT};
@@ -133,6 +133,7 @@ impl TryFrom<Args> for Vec<Settings> {
         match args.mode {
             Mode::Cli(settings) => Ok(vec![settings.into()]),
             Mode::ConfigFile { config_file } => ConfigFile::from_file(config_file)
+                .map_err(|error| anyhow!("{error}"))
                 .map(|config_file| config_file.accounts.into_iter().map(Into::into).collect()),
         }
     }
