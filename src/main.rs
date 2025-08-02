@@ -12,6 +12,7 @@ mod functions;
 mod html_ext;
 mod login_data;
 mod patch_data;
+mod response_ext;
 mod settings;
 
 use clap::Parser;

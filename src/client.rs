@@ -1,8 +1,6 @@
 use std::borrow::Cow;
-use std::collections::BTreeMap;
 use std::time::Duration;
 
-use anyhow::anyhow;
 use reqwest::{Request, Response};
 use scraper::Html;
 
@@ -10,6 +8,7 @@ use crate::auth_data::AuthData;
 use crate::login_data::LoginData;
 
 use crate::html_ext::HtmlExt;
+use crate::response_ext::ResponseExt;
 use session::Session;
 
 mod session;
@@ -81,15 +80,9 @@ impl Client {
         user_name: &str,
         password: &str,
     ) -> anyhow::Result<(String, String)> {
-        scrape_dev_ref_and_access_token(
-            &self
-                .execute_login_request(user_name, password)
-                .await?
-                .cookies()
-                .map(|cookie| (cookie.name().to_string(), cookie.value().to_string()))
-                .collect::<BTreeMap<_, _>>(),
-        )
-        .map(|(dev_ref, access_token)| (dev_ref.to_string(), access_token.to_string()))
+        self.execute_login_request(user_name, password)
+            .await?
+            .scrape_dev_ref_and_access_token()
     }
 
     async fn get_csrf_token_and_user_id(&self) -> anyhow::Result<(String, String)> {
@@ -139,17 +132,4 @@ impl Default for Client {
     fn default() -> Self {
         Self::new(TIMEOUT, Cow::Borrowed(USER_AGENT))
     }
-}
-
-fn scrape_dev_ref_and_access_token(
-    cookies: &BTreeMap<String, String>,
-) -> anyhow::Result<(&str, &str)> {
-    Ok((
-        cookies
-            .get("X-Dev-Ref-No")
-            .ok_or_else(|| anyhow!("X-Dev-Ref-No not found in cookies"))?,
-        cookies
-            .get("X-Access-Token")
-            .ok_or_else(|| anyhow!("X-Access-Token not found in cookies"))?,
-    ))
 }
