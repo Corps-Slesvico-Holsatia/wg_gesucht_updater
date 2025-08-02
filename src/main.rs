@@ -9,6 +9,7 @@ mod client;
 mod config_file;
 mod error;
 mod functions;
+mod html_ext;
 mod login_data;
 mod patch_data;
 mod settings;

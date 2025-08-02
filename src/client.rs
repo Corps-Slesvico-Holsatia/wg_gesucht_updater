@@ -1,15 +1,15 @@
 use std::borrow::Cow;
 use std::collections::HashMap;
-use std::sync::LazyLock;
 use std::time::Duration;
 
 use anyhow::anyhow;
 use reqwest::{Request, Response};
-use scraper::{Html, Selector};
+use scraper::Html;
 
 use crate::auth_data::AuthData;
 use crate::login_data::LoginData;
 
+use crate::html_ext::HtmlExt;
 use session::Session;
 
 mod session;
@@ -19,12 +19,6 @@ const OFFERS_LIST_URL: &str = "https://www.wg-gesucht.de/meine-anzeigen.html";
 const CLIENT_ID: &str = "wg_desktop_website";
 pub const TIMEOUT: Duration = Duration::from_secs(10);
 pub const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36";
-static CSRF_TOKEN_SELECTOR: LazyLock<Selector> = LazyLock::new(|| {
-    Selector::parse("a[data-csrf_token]").expect("Could not create CSRF token selector")
-});
-static USER_ID_SELECTOR: LazyLock<Selector> = LazyLock::new(|| {
-    Selector::parse("a[data-user_id]").expect("Could not create user ID selector")
-});
 
 /// Client to the wg-gesucht web API.
 #[derive(Debug)]
@@ -99,7 +93,7 @@ impl Client {
     }
 
     async fn get_csrf_token_and_user_id(&self) -> anyhow::Result<(String, String)> {
-        scrape_csrf_token_and_user_id(&Html::parse_document(&String::from_utf8(
+        Html::parse_document(&String::from_utf8(
             self.client
                 .execute(self.build_offer_list_request()?)
                 .await?
@@ -107,7 +101,8 @@ impl Client {
                 .bytes()
                 .await?
                 .to_vec(),
-        )?))
+        )?)
+        .scrape_csrf_token_and_user_id()
         .map(|(csrf_token, user_id)| (csrf_token.to_string(), user_id.to_string()))
     }
 
@@ -156,22 +151,5 @@ fn scrape_dev_ref_and_access_token(
         cookies
             .get("X-Access-Token")
             .ok_or_else(|| anyhow!("X-Access-Token not found in cookies"))?,
-    ))
-}
-
-fn scrape_csrf_token_and_user_id(html: &Html) -> anyhow::Result<(&str, &str)> {
-    Ok((
-        html.select(&CSRF_TOKEN_SELECTOR)
-            .next()
-            .ok_or_else(|| anyhow!("Could not find element with CSRF token"))?
-            .value()
-            .attr("data-csrf_token")
-            .ok_or_else(|| anyhow!("Could extract not CSRF token from element"))?,
-        html.select(&USER_ID_SELECTOR)
-            .next()
-            .ok_or_else(|| anyhow!("Could not find element with user ID"))?
-            .value()
-            .attr("data-user_id")
-            .ok_or_else(|| anyhow!("Could not extract user ID from element"))?,
     ))
 }
